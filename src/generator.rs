@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::bail;
+use anyhow::{bail, Context};
 
 use chrono::NaiveDate;
 use fs_extra::dir::CopyOptions;
@@ -55,7 +55,9 @@ fn process_file(metadata: &Metadata) -> anyhow::Result<()> {
         tags: metadata.tags.clone(),
         date: metadata.date.clone(),
     };
-    s.handlebars.render_to_write("article", &data, fd)?;
+    s.handlebars
+        .render_to_write("article", &data, fd)
+        .with_context(|| format!("while generating from {:?}", metadata.path))?;
     Ok(())
 }
 
@@ -102,7 +104,8 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
                     metadata.tags = value.split(",").map(|s| s.to_string()).collect();
                 }
                 "date" => {
-                    metadata.date = NaiveDate::parse_from_str(value, "%y-%m-%d")?;
+                    metadata.date = NaiveDate::parse_from_str(value, "%Y-%m-%d")
+                        .context("Invalid date format")?;
                 }
                 _ => {}
             }
@@ -154,7 +157,10 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             if meta.is_dir() {
                 q.push_back(path.join(entry.file_name()));
             } else if meta.is_file() {
-                let article_meta = preprocess_file(&path.join(entry.file_name()))?;
+                let article_meta =
+                    preprocess_file(&path.join(entry.file_name())).with_context(|| {
+                        format!("while preprocessing {:?}", &path.join(entry.file_name()))
+                    })?;
                 for tag in article_meta.tags.iter() {
                     let entry = tags.entry(tag.to_string()).or_default();
                     (*entry).push(articles.len());
@@ -174,7 +180,8 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         articles: &articles,
     };
     s.handlebars
-        .render_to_write("index", &index_data, index_fd)?;
+        .render_to_write("index", &index_data, index_fd)
+        .context("while generating index.html")?;
 
     // 各ページの生成
     for article in articles.iter() {
@@ -195,7 +202,9 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 .map(|idx| &articles[idx])
                 .collect(),
         };
-        s.handlebars.render_to_write("tag", &data, fd)?;
+        s.handlebars
+            .render_to_write("tag", &data, fd)
+            .with_context(|| format!("while generating for tag {:?}", data.tag))?;
     }
 
     Ok(())

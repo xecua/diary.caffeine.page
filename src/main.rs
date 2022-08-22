@@ -1,4 +1,4 @@
-use anyhow::bail;
+use anyhow::{bail, Context};
 use clap::{command, Arg};
 use generator::generate;
 use state::State;
@@ -54,12 +54,18 @@ fn main() -> anyhow::Result<()> {
         bail!("template_dir must be a directory.")
     }
     let mut handlebars = handlebars::Handlebars::new();
-    handlebars.register_template_file("index", template_dir.join("index.hbs"))?;
-    handlebars.register_template_file("article", template_dir.join("article.hbs"))?;
-    handlebars.register_template_file("tag", template_dir.join("tag.hbs"))?;
+    handlebars
+        .register_template_file("index", template_dir.join("index.hbs"))
+        .context("index.hbs")?;
+    handlebars
+        .register_template_file("article", template_dir.join("article.hbs"))
+        .context("article.hbs")?;
+    handlebars
+        .register_template_file("tag", template_dir.join("tag.hbs"))
+        .context("tag.hbs")?;
     handlebars.register_partial(
         "header",
-        std::fs::read_to_string(template_dir.join("header.hbs"))?,
+        std::fs::read_to_string(template_dir.join("header.hbs")).context("header.hbs")?,
     )?;
     handlebars.register_partial(
         "side",
