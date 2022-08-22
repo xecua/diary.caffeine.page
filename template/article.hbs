@@ -1,0 +1,31 @@
+<html>
+    {{> header }}
+    <body>
+        <div id="container">
+            <main>
+                <div id="body">
+                    <h1>{{ title }}</h1>
+                    <div>
+                        タグ:
+                        {{#if tags}}
+                            {{#each tags}}
+                                <a href="/tags/{{this}}.html">{{this}}</a>
+                            {{/each}}
+                        {{else}}
+                            なし
+                        {{/if}}
+                    </div>
+                    <div style="text-align: right">
+                        {{ date }}
+                    </div>
+                    {{{ body }}}
+                </div>
+            </main>
+            {{!-- <nav>
+                <div id="side">
+                    {{> side }}
+                </div>
+            </nav> --}}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,13 @@
+<html>
+    {{> header }}
+    <body>
+        {{#if blog_name}}<h1>{{ blog_name }}</h1>{{/if}}
+        <main>
+            <ul>
+            {{#each articles}}
+                <li /><a href="/{{path}}">{{title}}</a>
+            {{/each}}
+            </ul>
+        </main>
+    </body>
+</html>
