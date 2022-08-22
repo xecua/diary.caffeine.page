@@ -6,6 +6,7 @@ use once_cell::sync::OnceCell;
 pub(crate) struct State {
     pub article_dir: PathBuf,
     pub out_dir: PathBuf,
+    pub public_dir: PathBuf,
 
     pub handlebars: handlebars::Handlebars<'static>,
 }

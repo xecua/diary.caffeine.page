@@ -1,0 +1,15 @@
+<html>
+    {{> header }}
+    <body>
+        <div id="container">
+            <main>
+                <h1> Tag: {{ tag }} </h1>
+                <ui>
+                {{#each articles}}
+                    <li /><a href="/{{path}}">{{title}}</a>
+                {{/each}}
+                </ul>
+            </main>
+        </div>
+    </body>
+</html>
