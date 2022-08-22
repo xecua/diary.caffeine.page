@@ -16,3 +16,5 @@ jobs:
         with:
           publish_dir: ./out
           publish_branch: pub
+          personal_token: ${{ secrets.XECUA_PERSONAL_TOKEN }}
+          cname: diary.caffeine.page
