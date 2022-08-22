@@ -12,9 +12,18 @@ jobs:
         with:
           toolchain: stable
       - run: cargo run --release
-      - uses: peaceiris/actions-gh-pages@v3
+      - uses: actions/upload-pages-artifact@v1
         with:
-          publish_dir: ./out
-          publish_branch: pub
-          personal_token: ${{ secrets.XECUA_PERSONAL_TOKEN }}
-          cname: diary.caffeine.page
+          path: out
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permission:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v1
