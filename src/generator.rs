@@ -122,6 +122,7 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
 #[derive(Serialize, Debug)]
 struct IndexData<'a> {
     blog_name: String,
+    title: String,
     articles: &'a Vec<Metadata>,
 }
 
@@ -177,6 +178,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         .open(s.out_dir.join("index.html"))?;
     let index_data = IndexData {
         blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
+        title: "index".to_string(),
         articles: &articles,
     };
     s.handlebars

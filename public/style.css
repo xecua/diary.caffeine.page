@@ -1,6 +1,8 @@
+head {
+  margin: 20mm;
+}
 
 #container {
-  margin: 20mm;
   display: grid;
   column-gap: 10mm;
   grid-template-columns: 60% 40%;
