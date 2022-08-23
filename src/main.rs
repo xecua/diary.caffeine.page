@@ -11,13 +11,20 @@ mod state;
 
 handlebars_helper!(breadcrumbs: |path: PathBuf| {
     let mut current_path = PathBuf::from("/");
-    let mut res = "/ ".to_string();
-    for c in path.components() {
+    let mut res = String::new();
+    let mut components = path.components();
+    if path.has_root() {
+        components.next();
+    }
+    res.push_str("<a href=\"/\">/</a> ");
+    for (i, c) in components.enumerate() {
         current_path.push(c);
-        current_path.set_extension("html");
-        res.push_str(&format!("<a href=\"{}\">{}</a>", current_path.to_string_lossy(), c.as_os_str().to_string_lossy()));
-        current_path.set_extension("");
-        res.push_str(" / ")
+        res.push_str(
+            &format!("{}<a href=\"{}\">{}</a>",
+            if i == 0 {""} else {" / "},
+            current_path.to_string_lossy(),
+            c.as_os_str().to_string_lossy())
+        );
     }
 
     res

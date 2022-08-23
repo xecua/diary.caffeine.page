@@ -10,6 +10,7 @@
     </head>
     <body>
         {{#if blog_name}}<h1>{{ blog_name }}</h1>{{/if}}
+        <nav>{{{ breadcrumbs path }}}</nav>
         {{> main }}
     </body>
 </html>
