@@ -7,6 +7,7 @@ use std::{
 use anyhow::{bail, Context};
 
 use chrono::NaiveDate;
+use either::Either;
 use fs_extra::dir::CopyOptions;
 use log::debug;
 use pulldown_cmark::{html, Event, Options, Parser};
@@ -20,6 +21,7 @@ struct Data {
     body: String,
     title: String,
     tags: Vec<String>,
+    path: PathBuf,
     date: chrono::NaiveDate,
 }
 
@@ -51,6 +53,7 @@ fn process_file(metadata: &Metadata) -> anyhow::Result<()> {
     let data = Data {
         blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
         body: body_html,
+        path: metadata.path.clone(),
         title: metadata.title.clone(),
         tags: metadata.tags.clone(),
         date: metadata.date.clone(),
@@ -65,7 +68,7 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
     let s = State::instance();
     let path = s.article_dir.join(file_path);
 
-    let mut file_path_html: PathBuf = path.components().skip(1).collect();
+    let mut file_path_html: PathBuf = file_path.clone();
     file_path_html.set_extension("html");
 
     let mut metadata = Metadata {
@@ -123,6 +126,7 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
 struct IndexData<'a> {
     blog_name: String,
     title: String,
+    path: PathBuf,
     articles: &'a Vec<Metadata>,
 }
 
@@ -131,6 +135,7 @@ struct TagData<'a> {
     blog_name: String,
     title: String,
     tag: String,
+    path: PathBuf,
     articles: Vec<&'a Metadata>,
 }
 
@@ -147,16 +152,28 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     fs_extra::dir::copy(&s.public_dir, s.out_dir.join(&s.public_dir), &cp_opts)?;
 
     let mut articles = vec![];
+    let mut dir_ents: HashMap<PathBuf, Vec<Either<usize, Metadata>>> = HashMap::new(); // right: directory
     let mut tags: HashMap<String, Vec<usize>> = HashMap::new();
     let mut q = VecDeque::new();
-    q.push_back(PathBuf::from("."));
+    q.push_back(PathBuf::new());
     while let Some(path) = q.pop_front() {
         let dirname = s.article_dir.join(&path);
+        let dir_entries = dir_ents.entry(path.clone()).or_default();
         for entry in std::fs::read_dir(dirname)? {
             let entry = entry?;
             let meta = entry.metadata()?;
+
             if meta.is_dir() {
-                q.push_back(path.join(entry.file_name()));
+                let entry_path = path.join(entry.file_name());
+                let entry_name = entry.file_name().to_string_lossy().to_string();
+                q.push_back(entry_path.clone());
+                (*dir_entries).push(Either::Right(Metadata {
+                    title: entry_name,
+                    tags: vec![],
+                    date: NaiveDate::default(),
+                    path: entry_path,
+                    body: "".to_string(),
+                }));
             } else if meta.is_file() {
                 let article_meta =
                     preprocess_file(&path.join(entry.file_name())).with_context(|| {
@@ -166,7 +183,8 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                     let entry = tags.entry(tag.to_string()).or_default();
                     (*entry).push(articles.len());
                 }
-                articles.push(article_meta);
+                (*dir_entries).push(Either::Left(articles.len()));
+                articles.push(article_meta.clone());
             }
         }
     }
@@ -179,6 +197,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     let index_data = IndexData {
         blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
         title: "index".to_string(),
+        path: PathBuf::from("/"),
         articles: &articles,
     };
     s.handlebars
@@ -190,6 +209,33 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         process_file(article)?;
     }
 
+    for (dir_name, entry) in dir_ents.into_iter() {
+        // トップページだけ例外
+        if dir_name == PathBuf::new() {
+            continue;
+        }
+
+        let path = s.out_dir.join(&dir_name).join("index.html");
+        let title = dir_name.to_string_lossy().to_string();
+        let fd = OpenOptions::new().write(true).create(true).open(path)?;
+        let data = TagData {
+            blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
+            title: title.clone(),
+            path: dir_name,
+            tag: "".to_string(), // 強引……
+            articles: entry
+                .iter()
+                .map(|e| match e {
+                    Either::Left(idx) => &articles[*idx],
+                    Either::Right(meta) => meta,
+                })
+                .collect(),
+        };
+        s.handlebars
+            .render_to_write("index", &data, fd)
+            .with_context(|| format!("while generating list for {:?}", title))?;
+    }
+
     fs_extra::dir::create_all(s.out_dir.join("tags"), false)?;
     for (tag, article_indices) in tags.into_iter() {
         let mut path = s.out_dir.join("tags").join(&tag);
@@ -198,6 +244,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         let data = TagData {
             blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
             title: format!("Tag: {}", tag),
+            path: PathBuf::from("/tags").join(&tag),
             tag,
             articles: article_indices
                 .into_iter()

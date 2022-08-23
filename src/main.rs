@@ -1,12 +1,27 @@
 use anyhow::{bail, Context};
 use clap::{command, Arg};
 use generator::generate;
+use handlebars::handlebars_helper;
 use state::State;
 use std::path::PathBuf;
 
 mod generator;
 mod metadata;
 mod state;
+
+handlebars_helper!(breadcrumbs: |path: PathBuf| {
+    let mut current_path = PathBuf::from("/");
+    let mut res = "/ ".to_string();
+    for c in path.components() {
+        current_path.push(c);
+        current_path.set_extension("html");
+        res.push_str(&format!("<a href=\"{}\">{}</a>", current_path.to_string_lossy(), c.as_os_str().to_string_lossy()));
+        current_path.set_extension("");
+        res.push_str(" / ")
+    }
+
+    res
+});
 
 fn main() -> anyhow::Result<()> {
     env_logger::init();
@@ -54,6 +69,7 @@ fn main() -> anyhow::Result<()> {
         bail!("template_dir must be a directory.")
     }
     let mut handlebars = handlebars::Handlebars::new();
+    handlebars.register_helper("breadcrumbs", Box::new(breadcrumbs));
     handlebars
         .register_template_file("index", template_dir.join("index.hbs"))
         .context("index.hbs")?;
@@ -64,12 +80,12 @@ fn main() -> anyhow::Result<()> {
         .register_template_file("tag", template_dir.join("tag.hbs"))
         .context("tag.hbs")?;
     handlebars.register_partial(
-        "header",
-        std::fs::read_to_string(template_dir.join("header.hbs")).context("header.hbs")?,
+        "layout",
+        std::fs::read_to_string(template_dir.join("layout.hbs")).context("header.hbs")?,
     )?;
     handlebars.register_partial(
         "side",
-        std::fs::read_to_string(template_dir.join("side.hbs"))?,
+        std::fs::read_to_string(template_dir.join("side.hbs")).context("side.hbs")?,
     )?;
 
     state::STATE

@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>{{title}}{{#if blog_name}} | {{blog_name}}{{/if}}</title>
+        <link rel="stylesheet" href="/public/style.css">
+
+        <script src="/public/prism.js"></script>
+        <link rel="stylesheet" href="/public/prism.css">
+        {{> additional_header }}
+    </head>
+    <body>
+        {{#if blog_name}}<h1>{{ blog_name }}</h1>{{/if}}
+        {{> main }}
+    </body>
+</html>

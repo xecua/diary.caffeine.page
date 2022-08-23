@@ -1,6 +1,8 @@
-<html>
-    {{> header }}
-    <body>
+{{#> layout }}
+    {{#*inline "main"}}
+        <nav>
+            {{{ breadcrumbs path }}}
+        </nav>
         <div id="container">
             <main>
                 <div id="body">
@@ -27,5 +29,5 @@
                 </div>
             </nav> --}}
         </div>
-    </body>
-</html>
+    {{/inline}}
+{{/layout}}
