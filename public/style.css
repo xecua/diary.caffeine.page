@@ -8,6 +8,13 @@ ul, ol {
   padding-left: 1rem;
 }
 
+#disqus_thread {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: solid black 1Q;
+  border-bottom: solid black 1Q;
+}
+
 @media screen and (min-width: 70rem) {
   /* for desktop */
   body {
