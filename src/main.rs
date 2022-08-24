@@ -23,8 +23,8 @@ handlebars_helper!(breadcrumbs: |path: PathBuf| {
             &format!("{}<a href=\"{}\">{}</a>",
             if i == 0 {""} else {" / "},
             current_path.to_string_lossy(),
-            c.as_os_str().to_string_lossy())
-        );
+            current_path.file_stem().unwrap().to_string_lossy() // file_prefix: unstable
+        ));
     }
 
     res
@@ -84,15 +84,11 @@ fn main() -> anyhow::Result<()> {
         .register_template_file("article", template_dir.join("article.hbs"))
         .context("article.hbs")?;
     handlebars
-        .register_template_file("tag", template_dir.join("tag.hbs"))
-        .context("tag.hbs")?;
+        .register_template_file("list", template_dir.join("list.hbs"))
+        .context("list.hbs")?;
     handlebars.register_partial(
         "layout",
         std::fs::read_to_string(template_dir.join("layout.hbs")).context("header.hbs")?,
-    )?;
-    handlebars.register_partial(
-        "side",
-        std::fs::read_to_string(template_dir.join("side.hbs")).context("side.hbs")?,
     )?;
 
     state::STATE
@@ -100,6 +96,7 @@ fn main() -> anyhow::Result<()> {
             article_dir: article_dir.to_owned(),
             out_dir: out_dir.to_owned(),
             public_dir: public_dir.to_owned(),
+            blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
             handlebars,
         })
         .unwrap();

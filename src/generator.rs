@@ -16,52 +16,18 @@ use serde::Serialize;
 use crate::{metadata::Metadata, state::State};
 
 #[derive(Serialize, Debug)]
-struct Data {
-    blog_name: String,
+struct ArticlePageData<'a> {
+    blog_name: &'static str,
     body: String,
-    title: String,
-    tags: Vec<String>,
-    path: PathBuf,
-    date: chrono::NaiveDate,
+    meta: &'a Metadata,
 }
 
-fn process_file(metadata: &Metadata) -> anyhow::Result<()> {
-    let s = State::instance();
-    let mut options = Options::empty();
-    options.insert(Options::ENABLE_STRIKETHROUGH);
-    options.insert(Options::ENABLE_TABLES);
-    let parser = Parser::new_ext(&metadata.body, options).map(|event| {
-        // TODO: 数式とか
-        debug!("{:?}", event);
-        match event {
-            Event::SoftBreak => Event::HardBreak,
-            _ => event,
-        }
-    });
-
-    // out
-    let mut out_path = s.out_dir.join(&metadata.path);
-    out_path.set_extension("html");
-    if out_path.parent().map_or(false, |p| !p.exists()) {
-        std::fs::create_dir_all(out_path.parent().unwrap())?;
-    }
-    let fd = OpenOptions::new().write(true).create(true).open(out_path)?;
-
-    let mut body_html = String::new();
-    html::push_html(&mut body_html, parser);
-
-    let data = Data {
-        blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
-        body: body_html,
-        path: metadata.path.clone(),
-        title: metadata.title.clone(),
-        tags: metadata.tags.clone(),
-        date: metadata.date.clone(),
-    };
-    s.handlebars
-        .render_to_write("article", &data, fd)
-        .with_context(|| format!("while generating from {:?}", metadata.path))?;
-    Ok(())
+#[derive(Serialize, Debug)]
+struct ListPageData<'a> {
+    blog_name: &'static str,
+    title: String,
+    path: PathBuf,
+    articles: Vec<&'a Metadata>,
 }
 
 fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
@@ -74,7 +40,7 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
     let mut metadata = Metadata {
         title: "".to_string(),
         tags: vec![],
-        date: NaiveDate::default(),
+        date: None,
         path: file_path_html,
         body: "".to_string(),
     };
@@ -107,8 +73,10 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
                     metadata.tags = value.split(",").map(|s| s.to_string()).collect();
                 }
                 "date" => {
-                    metadata.date = NaiveDate::parse_from_str(value, "%Y-%m-%d")
-                        .context("Invalid date format")?;
+                    metadata.date = Some(
+                        NaiveDate::parse_from_str(value, "%Y-%m-%d")
+                            .context("Invalid date format")?,
+                    );
                 }
                 _ => {}
             }
@@ -122,56 +90,84 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
     Ok(metadata)
 }
 
-#[derive(Serialize, Debug)]
-struct IndexData<'a> {
-    blog_name: String,
-    title: String,
-    path: PathBuf,
-    articles: &'a Vec<Metadata>,
-}
+fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
+    let s = State::instance();
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_TABLES);
+    let parser = Parser::new_ext(&metadata.body, options).map(|event| {
+        // TODO: 数式とか
+        debug!("{:?}", event);
+        match event {
+            Event::SoftBreak => Event::HardBreak,
+            _ => event,
+        }
+    });
 
-#[derive(Serialize, Debug)]
-struct TagData<'a> {
-    blog_name: String,
-    title: String,
-    tag: String,
-    path: PathBuf,
-    articles: Vec<&'a Metadata>,
+    // out
+    let mut out_path = s.out_dir.join(&metadata.path);
+    out_path.set_extension("html");
+    if out_path.parent().map_or(false, |p| !p.exists()) {
+        std::fs::create_dir_all(out_path.parent().unwrap())?;
+    }
+    let fd = OpenOptions::new().write(true).create(true).open(out_path)?;
+
+    let mut body_html = String::new();
+    html::push_html(&mut body_html, parser);
+
+    let data = ArticlePageData {
+        blog_name: &s.blog_name,
+        body: body_html,
+        meta: &metadata,
+    };
+    s.handlebars
+        .render_to_write("article", &data, fd)
+        .with_context(|| format!("while generating from {:?}", metadata.path))?;
+    Ok(())
 }
 
 pub(crate) fn generate() -> anyhow::Result<()> {
     let s = State::instance();
 
-    // backup
     fs_extra::dir::remove(&s.out_dir)?;
 
+    // copy `public_dir`
     let mut cp_opts = CopyOptions::new();
     cp_opts.copy_inside = true;
     cp_opts.content_only = true;
     cp_opts.overwrite = true;
     fs_extra::dir::copy(&s.public_dir, s.out_dir.join(&s.public_dir), &cp_opts)?;
 
+    // master data
     let mut articles = vec![];
-    let mut dir_ents: HashMap<PathBuf, Vec<Either<usize, Metadata>>> = HashMap::new(); // right: directory
+
+    // subdirectory data
+    // left: index of `articles` / right: directory(pseudo entry data)
+    let mut directories: HashMap<PathBuf, Vec<Either<usize, Metadata>>> = HashMap::new();
     let mut tags: HashMap<String, Vec<usize>> = HashMap::new();
+
+    // traversing `article_dir`
     let mut q = VecDeque::new();
     q.push_back(PathBuf::new());
     while let Some(path) = q.pop_front() {
-        let dirname = s.article_dir.join(&path);
-        let dir_entries = dir_ents.entry(path.clone()).or_default();
-        for entry in std::fs::read_dir(dirname)? {
+        let current_searching_directory_path = s.article_dir.join(&path);
+
+        let entries_in_current_path = directories.entry(path.clone()).or_default();
+
+        for entry in std::fs::read_dir(current_searching_directory_path)? {
             let entry = entry?;
             let meta = entry.metadata()?;
 
             if meta.is_dir() {
-                let entry_path = path.join(entry.file_name());
-                let entry_name = entry.file_name().to_string_lossy().to_string();
-                q.push_back(entry_path.clone());
-                (*dir_entries).push(Either::Right(Metadata {
-                    title: entry_name,
+                let directory_path = path.join(entry.file_name());
+                q.push_back(directory_path.clone());
+
+                let directory_name = entry.file_name().to_string_lossy().to_string();
+                (*entries_in_current_path).push(Either::Right(Metadata {
+                    title: directory_name,
                     tags: vec![],
-                    date: NaiveDate::default(),
-                    path: entry_path,
+                    date: None,
+                    path: directory_path,
                     body: "".to_string(),
                 }));
             } else if meta.is_file() {
@@ -180,37 +176,50 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                         format!("while preprocessing {:?}", &path.join(entry.file_name()))
                     })?;
                 for tag in article_meta.tags.iter() {
-                    let entry = tags.entry(tag.to_string()).or_default();
-                    (*entry).push(articles.len());
+                    let tag_entries = tags.entry(tag.to_string()).or_default();
+                    (*tag_entries).push(articles.len());
                 }
-                (*dir_entries).push(Either::Left(articles.len()));
+                (*entries_in_current_path).push(Either::Left(articles.len()));
                 articles.push(article_meta.clone());
             }
         }
     }
 
-    // index
-    let index_fd = OpenOptions::new()
-        .write(true)
-        .create(true)
-        .open(s.out_dir.join("index.html"))?;
-    let index_data = IndexData {
-        blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
-        title: "index".to_string(),
-        path: PathBuf::from("/"),
-        articles: &articles,
-    };
-    s.handlebars
-        .render_to_write("index", &index_data, index_fd)
-        .context("while generating index.html")?;
-
-    // 各ページの生成
+    // generate article pages
     for article in articles.iter() {
-        process_file(article)?;
+        generate_article(article)?;
     }
 
-    for (dir_name, entry) in dir_ents.into_iter() {
-        // トップページだけ例外
+    // generate index page
+    {
+        let index_fd = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(s.out_dir.join("index.html"))?;
+
+        // ordering by date(descending). if both are directory, compare by directory name.
+        let mut articles: Vec<&Metadata> = articles.iter().collect();
+        articles.sort_by(|a, b| match (a.date, b.date) {
+            (Some(ref a_date), Some(ref b_date)) => b_date.cmp(a_date),
+            (Some(_), None) => std::cmp::Ordering::Greater,
+            (None, Some(_)) => std::cmp::Ordering::Less,
+            (None, None) => b.title.cmp(&a.title),
+        });
+
+        let index_data = ListPageData {
+            blog_name: &s.blog_name,
+            title: "index".to_string(),
+            path: PathBuf::from("/"),
+            articles,
+        };
+        s.handlebars
+            .render_to_write("index", &index_data, index_fd)
+            .context("while generating index.html")?;
+    }
+
+    // generate directory index pages
+    for (dir_name, entry) in directories.into_iter() {
+        // index page
         if dir_name == PathBuf::new() {
             continue;
         }
@@ -218,42 +227,61 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         let path = s.out_dir.join(&dir_name).join("index.html");
         let title = dir_name.to_string_lossy().to_string();
         let fd = OpenOptions::new().write(true).create(true).open(path)?;
-        let data = TagData {
-            blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
+
+        // ordering by date(descending). if both are directory, compare by directory name.
+        let mut articles: Vec<&Metadata> = entry
+            .iter()
+            .map(|e| match e {
+                Either::Left(idx) => &articles[*idx],
+                Either::Right(meta) => meta,
+            })
+            .collect();
+        articles.sort_by(|a, b| match (a.date, b.date) {
+            (Some(ref a_date), Some(ref b_date)) => b_date.cmp(a_date),
+            (Some(_), None) => std::cmp::Ordering::Greater,
+            (None, Some(_)) => std::cmp::Ordering::Less,
+            (None, None) => b.title.cmp(&a.title),
+        });
+
+        let data = ListPageData {
+            blog_name: &s.blog_name,
             title: title.clone(),
             path: dir_name,
-            tag: "".to_string(), // 強引……
-            articles: entry
-                .iter()
-                .map(|e| match e {
-                    Either::Left(idx) => &articles[*idx],
-                    Either::Right(meta) => meta,
-                })
-                .collect(),
+            articles,
         };
         s.handlebars
-            .render_to_write("index", &data, fd)
+            .render_to_write("list", &data, fd)
             .with_context(|| format!("while generating list for {:?}", title))?;
     }
 
+    // generate tag pages
     fs_extra::dir::create_all(s.out_dir.join("tags"), false)?;
     for (tag, article_indices) in tags.into_iter() {
         let mut path = s.out_dir.join("tags").join(&tag);
         path.set_extension("html");
         let fd = OpenOptions::new().write(true).create(true).open(path)?;
-        let data = TagData {
-            blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
-            title: format!("Tag: {}", tag),
+
+        // ordering by date(descending). if both are directory, compare by directory name.
+        let mut articles: Vec<&Metadata> = article_indices
+            .into_iter()
+            .map(|idx| &articles[idx])
+            .collect();
+        articles.sort_by(|a, b| match (a.date, b.date) {
+            (Some(ref a_date), Some(ref b_date)) => b_date.cmp(a_date),
+            (Some(_), None) => std::cmp::Ordering::Greater,
+            (None, Some(_)) => std::cmp::Ordering::Less,
+            (None, None) => b.title.cmp(&a.title),
+        });
+
+        let data = ListPageData {
+            blog_name: &s.blog_name,
+            title: format!("タグ: {}", tag),
             path: PathBuf::from("/tags").join(&tag),
-            tag,
-            articles: article_indices
-                .into_iter()
-                .map(|idx| &articles[idx])
-                .collect(),
+            articles,
         };
         s.handlebars
-            .render_to_write("tag", &data, fd)
-            .with_context(|| format!("while generating for tag {:?}", data.tag))?;
+            .render_to_write("list", &data, fd)
+            .with_context(|| format!("while generating for {:?}", data.title))?;
     }
 
     Ok(())

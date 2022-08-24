@@ -1,30 +1,21 @@
-{{#> layout }}
+{{#> layout title=meta.title path=meta.path }}
     {{#*inline "main"}}
-        <div id="container">
-            <main>
-                <div id="body">
-                    <h2>{{ title }}</h2>
-                    <div>
-                        タグ:
-                        {{#if tags}}
-                            {{#each tags}}
-                                <a href="/tags/{{this}}.html">{{this}}</a>
-                            {{/each}}
-                        {{else}}
-                            なし
-                        {{/if}}
-                    </div>
-                    <div style="text-align: right">
-                        {{ date }}
-                    </div>
-                    {{{ body }}}
-                </div>
-            </main>
-            {{!-- <nav>
-                <div id="side">
-                    {{> side }}
-                </div>
-            </nav> --}}
-        </div>
+        <article>
+            <h2>{{ meta.title }}</h2>
+            <div>
+                タグ:
+                {{#if meta.tags}}{{#each meta.tags}}
+                    <a href="/tags/{{this}}.html">{{this}}</a>
+                {{/each}}{{else}}
+                    なし
+                {{/if}}
+            </div>
+            <time style="display: block; text-align: right" datetime="{{meta.date}}">
+                {{ meta.date }}
+            </time>
+            <section>
+                {{{ body }}}
+            </scetion>
+        </article>
     {{/inline}}
 {{/layout}}
