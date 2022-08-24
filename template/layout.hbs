@@ -1,7 +1,9 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>{{title}}{{#if blog_name}} | {{blog_name}}{{/if}}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>{{title}}{{#if blog_name}}{{#if title}} | {{/if}}{{/if}}{{blog_name}}</title>
         <link rel="stylesheet" href="/public/style.css">
 
         <script src="/public/prism.js"></script>
@@ -9,8 +11,18 @@
         {{> additional_header }}
     </head>
     <body>
-        {{#if blog_name}}<h1>{{ blog_name }}</h1>{{/if}}
-        <nav>{{{ breadcrumbs path }}}</nav>
-        {{> main }}
+        <header>
+            {{#if blog_name}}<h1>{{ blog_name }}</h1>{{/if}}
+            <nav id="breadcrumbs">{{{ breadcrumbs path }}}</nav>
+        </header>
+        <div id="container">
+            <main>
+                {{> main }}
+            </main>
+            {{!-- <nav id="side">
+                タグ一覧
+            </nav> --}}
+        </div>
+        {{!-- <footer></footer> --}}
     </body>
 </html>

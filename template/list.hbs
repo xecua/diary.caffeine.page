@@ -1,6 +1,7 @@
 {{#> layout }}
     {{#*inline "main"}}
-        <ul>
+        <h2> {{ title }} </h2>
+        <ui>
         {{#each articles}}
             <li /><a href="/{{path}}">{{title}}{{#if date}} ({{date}}){{/if}}</a>
         {{/each}}

@@ -1,9 +1,19 @@
 body {
-  margin: 20mm;
+  margin: 5rem auto;
+  width: min(calc(100vw - 10rem), 50rem);
 }
 
-#container {
-  display: grid;
-  column-gap: 10mm;
-  grid-template-columns: 60% 40%;
+@media screen and (min-width: 70rem) {
+  /* for desktop */
+  body {
+    margin: 5rem;
+    width: initial;
+    max-width: 45rem;
+  }
+
+  /* #container {
+    display: grid;
+    grid-template-columns: 45rem 15rem;
+    gap: 5rem;
+  } */
 }
