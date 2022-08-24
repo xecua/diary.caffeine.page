@@ -1,6 +1,11 @@
 body {
   margin: 5rem auto;
-  width: min(calc(100vw - 10rem), 50rem);
+  width: min(calc(100vw - 4rem), 50rem);
+  overflow-wrap: break-word;
+}
+
+ul, ol {
+  padding-left: 1rem;
 }
 
 @media screen and (min-width: 70rem) {
