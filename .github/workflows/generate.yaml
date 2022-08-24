@@ -14,7 +14,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2.0.0
       - run: cargo run --release
         env:
-          BLOG_NAME: "にっき"
+          BLOG_NAME: "だしがら"
       - uses: actions/upload-pages-artifact@v1
         with:
           path: out
