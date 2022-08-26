@@ -12,7 +12,7 @@ print("Hello, World")
 ```
 
 Link card demo
-<https://github.com>
+<https://github.com:fast_card>
 
 <https://example.com>
 

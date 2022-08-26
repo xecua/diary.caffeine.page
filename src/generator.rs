@@ -131,9 +131,19 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
         // debug!("{:?}", event);
         match event {
             Event::Start(Tag::Link(pulldown_cmark::LinkType::Autolink, ref url, _)) => {
+                if !url.ends_with(":card") && !url.ends_with(":fast_card") {
+                    return event;
+                }
+
+                let (wait_sec, url) = if url.ends_with(":fast_card") {
+                    (1, &url[..(url.len() - 10)]) // for apparently powerful website
+                } else {
+                    (10, &url[..(url.len() - 5)])
+                };
+
                 // fetch OGP info
                 {
-                    if let Some(Some(og)) = s.opengraph_cache.lock().unwrap().get(url.as_ref()) {
+                    if let Some(Some(og)) = s.opengraph_cache.lock().unwrap().get(url) {
                         ogp_replacing = true;
                         return Event::Html(render_card(og).into());
                     }
@@ -146,6 +156,8 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
                 };
 
                 if let Ok(webpage) = Webpage::from_url(&url, options) {
+                    std::thread::sleep(std::time::Duration::from_secs(wait_sec));
+
                     // OGP Requirements: title, type, url, image. So convert into card only if all of them exist
                     let og = webpage.html.opengraph;
                     if !og.og_type.is_empty()
