@@ -3,7 +3,7 @@
         <h2> {{ title }} </h2>
         <ui>
         {{#each articles}}
-            <li /><a href="/{{path}}">{{title}}{{#if date}} ({{date}}){{/if}}</a>
+            <li><a href="/{{path}}">{{title}}{{#if date}} ({{date}}){{/if}}</a></li>
         {{/each}}
         </ul>
     {{/inline}}
