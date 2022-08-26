@@ -1,5 +1,6 @@
 ---
 title: example
+date: 1970-01-01
 tag: greeting
 ---
 
@@ -10,6 +11,12 @@ tag: greeting
 print("Hello, World")
 ```
 
+Link card demo
+<https://github.com>
+
+<https://example.com>
+
+Math mode is not supported.
 $$
 1 + 2 = 3
 $$
