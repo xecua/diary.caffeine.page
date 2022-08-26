@@ -3,7 +3,7 @@ use clap::{command, Arg};
 use generator::generate;
 use handlebars::handlebars_helper;
 use state::State;
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 
 mod generator;
 mod metadata;
@@ -98,6 +98,7 @@ fn main() -> anyhow::Result<()> {
             public_dir: public_dir.to_owned(),
             blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
             handlebars,
+            opengraph_cache: Mutex::new(HashMap::new()),
         })
         .unwrap();
 

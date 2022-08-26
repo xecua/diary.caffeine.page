@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 anyhow = { version = "1.0.62", features = ["backtrace"] }
 chrono = { version = "0.4.22", features = ["serde"] }
@@ -20,3 +19,4 @@ regex = "1.6.0"
 serde = { version = "1.0.144", features = ["derive"] }
 serde_json = "1.0.85"
 thiserror = "1.0.32"
+webpage = { version = "1.4.0", features = ["serde"] }

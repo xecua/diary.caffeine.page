@@ -1,6 +1,7 @@
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf, sync::Mutex};
 
 use once_cell::sync::OnceCell;
+use webpage::Opengraph;
 
 #[derive(Debug)]
 pub(crate) struct State {
@@ -11,6 +12,7 @@ pub(crate) struct State {
     pub blog_name: String,
 
     pub handlebars: handlebars::Handlebars<'static>,
+    pub opengraph_cache: Mutex<HashMap<String, Option<Opengraph>>>,
 }
 
 pub(super) static STATE: OnceCell<State> = OnceCell::new();

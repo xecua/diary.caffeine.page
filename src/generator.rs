@@ -9,9 +9,9 @@ use anyhow::{bail, Context};
 use chrono::NaiveDate;
 use either::Either;
 use fs_extra::dir::CopyOptions;
-use log::debug;
-use pulldown_cmark::{html, Event, Options, Parser};
+use pulldown_cmark::{html, Event, Options, Parser, Tag};
 use serde::Serialize;
+use webpage::{Opengraph, Webpage, WebpageOptions};
 
 use crate::{metadata::Metadata, state::State};
 
@@ -90,17 +90,103 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
     Ok(metadata)
 }
 
+fn render_card(og: &Opengraph) -> String {
+    // TODO: change element by og_type
+    format!(
+        concat!(
+            "<a class=\"og-href\" href=\"{}\">",
+            "  <span class=\"og-card og_type_{}\">",
+            "    <span class=\"og-text\">",
+            "      <span class=\"og-title\">{}</span>",
+            "      <span class=\"og-desc\">{}</span>",
+            "      <span class=\"og-spacer\"></span>",
+            "      <span class=\"og-url\">{}</span>",
+            "    </span>",
+            "    <span class=\"og-spacer\"></span>",
+            "    <span class=\"og-image-wrap\">",
+            "      <img class=\"og-image\" src=\"{}\">",
+            "    </span>",
+            "  </span>",
+            "</a>",
+        ),
+        og.properties.get("url").unwrap(),
+        og.og_type,
+        og.properties.get("title").unwrap(),
+        og.properties.get("description").unwrap_or(&" ".to_string()),
+        og.properties.get("url").unwrap(),
+        og.images[0].url
+    )
+}
+
 fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
     let s = State::instance();
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     options.insert(Options::ENABLE_TABLES);
+
+    let mut ogp_replacing = false;
+
     let parser = Parser::new_ext(&metadata.body, options).map(|event| {
-        // TODO: 数式とか
-        debug!("{:?}", event);
+        // TODO: 数式とか?
+        // debug!("{:?}", event);
         match event {
+            Event::Start(Tag::Link(pulldown_cmark::LinkType::Autolink, ref url, _)) => {
+                // fetch OGP info
+                {
+                    if let Some(Some(og)) = s.opengraph_cache.lock().unwrap().get(url.as_ref()) {
+                        ogp_replacing = true;
+                        return Event::Html(render_card(og).into());
+                    }
+                }
+                // there is no cache: try to fetch
+                let options = WebpageOptions {
+                    // Hint from https://qiita.com/JunkiHiroi/items/f03d4297e11ce5db172e: this may be useful even for other than twitter
+                    useragent: "bot".to_string(),
+                    ..Default::default()
+                };
+
+                if let Ok(webpage) = Webpage::from_url(&url, options) {
+                    // OGP Requirements: title, type, url, image. So convert into card only if all of them exist
+                    let og = webpage.html.opengraph;
+                    if !og.og_type.is_empty()
+                        && og.properties.contains_key("title")
+                        && og.properties.contains_key("url")
+                        && og.images.len() >= 1
+                    {
+                        // caching.
+                        {
+                            s.opengraph_cache
+                                .lock()
+                                .unwrap()
+                                .insert(url.to_string(), Some(og.clone()));
+                        }
+                        ogp_replacing = true;
+                        return Event::Html(render_card(&og).into());
+                    }
+                }
+                // no need to caching (because there is no ogp info, nor the webpage did not exist.)
+                s.opengraph_cache
+                    .lock()
+                    .unwrap()
+                    .insert(url.to_string(), None);
+                event
+            }
+            Event::End(Tag::Link(pulldown_cmark::LinkType::Autolink, _, _)) => {
+                if ogp_replacing {
+                    ogp_replacing = false;
+                    Event::Text("".into())
+                } else {
+                    event
+                }
+            }
             Event::SoftBreak => Event::HardBreak,
-            _ => event,
+            _ => {
+                if ogp_replacing {
+                    Event::Text("".into())
+                } else {
+                    event
+                }
+            }
         }
     });
 
