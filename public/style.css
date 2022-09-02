@@ -8,6 +8,10 @@ body {
   overflow-wrap: break-word;
 }
 
+img {
+  max-width: 100%;
+}
+
 ul,
 ol {
   padding-left: 1rem;
