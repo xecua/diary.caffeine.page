@@ -16,8 +16,9 @@ jobs:
         env:
           BLOG_NAME: "blog name"
       - uses: EndBug/add-and-commit@v9
-        add: out
-        default_author: user_info
+        with:
+          add: out
+          default_author: user_info
       - uses: actions/upload-pages-artifact@v1
         with:
           path: out
