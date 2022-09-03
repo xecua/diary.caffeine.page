@@ -2,10 +2,17 @@
   --card-radius: 2mm;
 }
 
+@import url("https://fonts.googleapis.com/css2?family=M+PLUS+1&family=M+PLUS+1+Code&display=swap");
+
 body {
   width: min(calc(100vw - 4rem), 50rem);
   margin: 5rem auto;
   overflow-wrap: break-word;
+  font-family: "M PLUS 1", sans-serif;
+}
+
+code {
+  font-family: "M PLUS 1 Code", monospace;
 }
 
 img {
