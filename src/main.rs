@@ -55,10 +55,10 @@ fn main() -> anyhow::Result<()> {
                 .takes_value(true)
                 .value_parser(clap::value_parser!(PathBuf))
                 .default_value("template"),
-            Arg::new("force")
-                .short('f')
-                .long("force")
-                .help("Force overwrite")
+            Arg::new("clean")
+                .short('c')
+                .long("clean")
+                .help("Cleanup out_dir (cause force-overwrite)")
                 .action(clap::ArgAction::SetTrue),
         ])
         .get_matches();
@@ -96,14 +96,14 @@ fn main() -> anyhow::Result<()> {
         std::fs::read_to_string(template_dir.join("layout.hbs")).context("header.hbs")?,
     )?;
 
-    let force_write = matches.get_one::<bool>("force").unwrap().to_owned();
+    let clean = matches.get_one::<bool>("clean").unwrap().to_owned();
 
     state::STATE
         .set(State {
             article_dir: article_dir.to_owned(),
             out_dir: out_dir.to_owned(),
             public_dir: public_dir.to_owned(),
-            force_write,
+            clean,
             blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
             handlebars,
             opengraph_cache: Mutex::new(HashMap::new()),

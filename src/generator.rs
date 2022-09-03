@@ -206,7 +206,7 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
     let mut out_abs_path = s.out_dir.join(&metadata.path);
     out_abs_path.set_extension("html");
 
-    if !out_abs_path.exists() || s.force_write {
+    if !out_abs_path.exists() {
         if out_abs_path.parent().map_or(false, |p| !p.exists()) {
             std::fs::create_dir_all(out_abs_path.parent().unwrap())?;
         }
@@ -243,7 +243,9 @@ fn sort_article(a: &&Metadata, b: &&Metadata) -> Ordering {
 pub(crate) fn generate() -> anyhow::Result<()> {
     let s = State::instance();
 
-    fs_extra::dir::remove(&s.out_dir)?;
+    if s.clean {
+        fs_extra::dir::remove(&s.out_dir)?;
+    }
 
     // copy `public_dir`
     let mut cp_opts = CopyOptions::new();
@@ -306,7 +308,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
 
     debug!("generating index.html");
     let out_abs_index_path = s.out_dir.join("index.html");
-    if !out_abs_index_path.exists() || s.force_write {
+    if !out_abs_index_path.exists() {
         // ordering by date(descending). if both are directory, compare by directory name.
         let mut articles: Vec<&Metadata> = articles.iter().collect();
         articles.sort_by(sort_article);
@@ -330,7 +332,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     debug!("generating directory-index pages");
     for (out_rel_dir_path, entry) in directories.into_iter() {
         let out_abs_file_path = s.out_dir.join(&out_rel_dir_path).join("index.html");
-        if !out_abs_file_path.exists() || s.force_write {
+        if !out_abs_file_path.exists() {
             // index page
             let out_rel_dir_name = out_rel_dir_path.to_string_lossy().to_string();
             if out_rel_dir_name == "/" {
@@ -371,7 +373,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         let mut out_abs_file_path = s.out_dir.join(&out_rel_file_path);
         out_abs_file_path.set_extension("html");
 
-        if !out_abs_file_path.exists() || s.force_write {
+        if !out_abs_file_path.exists() {
             // ordering by date(descending). if both are directory, compare by directory name.
             let mut articles: Vec<&Metadata> = article_indices
                 .into_iter()
