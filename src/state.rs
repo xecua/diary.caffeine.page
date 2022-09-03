@@ -9,6 +9,8 @@ pub(crate) struct State {
     pub out_dir: PathBuf,
     pub public_dir: PathBuf,
 
+    pub force_write: bool,
+
     pub blog_name: String,
 
     pub handlebars: handlebars::Handlebars<'static>,
