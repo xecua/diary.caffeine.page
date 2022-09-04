@@ -374,7 +374,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         let out_abs_file_path = s.out_dir.join(&out_rel_dir_path).join("index.html");
         // index page
         let out_rel_dir_name = out_rel_dir_path.to_string_lossy().to_string();
-        if out_rel_dir_name == "/" {
+        if out_rel_dir_name.is_empty() {
             continue;
         }
 
