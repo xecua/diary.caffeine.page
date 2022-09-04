@@ -10,10 +10,11 @@ use anyhow::{bail, Context};
 use chrono::NaiveDate;
 use either::Either;
 use fs_extra::dir::CopyOptions;
-use log::debug;
+use log::{debug, warn};
 use pulldown_cmark::{html, Event, Options, Parser, Tag};
 use serde::Serialize;
-use webpage::{Opengraph, Webpage, WebpageOptions};
+use serde_json::{json, Value};
+use webpage::{Opengraph, OpengraphObject, Webpage, WebpageOptions};
 
 use crate::{metadata::Metadata, state::State};
 
@@ -143,9 +144,46 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
 
                 // fetch OGP info
                 {
-                    if let Some(Some(og)) = s.opengraph_cache.lock().unwrap().get(url) {
-                        ogp_replacing = true;
-                        return Event::Html(render_card(og).into());
+                    let cache = s.opengraph_cache.lock().unwrap();
+                    if let Some(c) = cache.get(url) {
+                        if *c != Value::Null {
+                            let mut ogp_replacing = true;
+
+                            let mut og = Opengraph::empty();
+                            if let Some(Value::String(og_type)) = c.get("type") {
+                                og.og_type = og_type.clone();
+                            } else {
+                                ogp_replacing = false;
+                                warn!("Invalid cache (type does not exist): {}", c);
+                            }
+                            if let Some(Value::String(og_title)) = c.get("title") {
+                                og.properties.insert("title".to_string(), og_title.clone());
+                            } else {
+                                ogp_replacing = false;
+                                warn!("Invalid cache (title does not exist): {}", c);
+                            }
+                            if let Some(Value::String(og_url)) = c.get("url") {
+                                og.properties.insert("url".to_string(), og_url.clone());
+                            } else {
+                                ogp_replacing = false;
+                                warn!("Invalid cache (url does not exist): {}", c);
+                            }
+                            if let Some(Value::String(og_thumb_url)) = c.get("thumb_url") {
+                                og.images = vec![OpengraphObject::new(og_thumb_url.clone())];
+                            } else {
+                                ogp_replacing = false;
+                                warn!(
+                                    "Invalid cache (thumbnail url(thumb_url) does not exist): {}",
+                                    c
+                                )
+                            }
+
+                            if ogp_replacing {
+                                // あんまり行儀がよくない
+
+                                return Event::Html(render_card(&og).into());
+                            }
+                        }
                     }
                 }
                 // there is no cache: try to fetch
@@ -167,20 +205,26 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
                     {
                         // caching.
                         {
-                            s.opengraph_cache
-                                .lock()
-                                .unwrap()
-                                .insert(url.to_string(), Some(og.clone()));
+                            let mut cache = s.opengraph_cache.lock().unwrap();
+                            cache.insert(
+                                url.to_string(),
+                                json!({
+                                    "type": og.og_type,
+                                    "title": og.properties["title"],
+                                    "url": og.properties["url"],
+                                    "thumb_url": og.images[0].url
+                                }),
+                            );
                         }
                         ogp_replacing = true;
                         return Event::Html(render_card(&og).into());
                     }
                 }
                 // no need to caching (because there is no ogp info, nor the webpage did not exist.)
-                s.opengraph_cache
-                    .lock()
-                    .unwrap()
-                    .insert(url.to_string(), None);
+                {
+                    let mut cache = s.opengraph_cache.lock().unwrap();
+                    cache.insert(url.to_string(), Value::Null);
+                }
                 event
             }
             Event::End(Tag::Link(pulldown_cmark::LinkType::Autolink, _, _)) => {
@@ -206,27 +250,25 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
     let mut out_abs_path = s.out_dir.join(&metadata.path);
     out_abs_path.set_extension("html");
 
-    if !out_abs_path.exists() {
-        if out_abs_path.parent().map_or(false, |p| !p.exists()) {
-            std::fs::create_dir_all(out_abs_path.parent().unwrap())?;
-        }
-        let out_abs_fd = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(out_abs_path)?;
-
-        let mut body_html = String::new();
-        html::push_html(&mut body_html, parser);
-
-        let data = ArticlePageData {
-            blog_name: &s.blog_name,
-            body: body_html,
-            meta: &metadata,
-        };
-        s.handlebars
-            .render_to_write("article", &data, out_abs_fd)
-            .with_context(|| format!("while generating from {:?}", metadata.path))?;
+    if out_abs_path.parent().map_or(false, |p| !p.exists()) {
+        std::fs::create_dir_all(out_abs_path.parent().unwrap())?;
     }
+    let out_abs_fd = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(out_abs_path)?;
+
+    let mut body_html = String::new();
+    html::push_html(&mut body_html, parser);
+
+    let data = ArticlePageData {
+        blog_name: &s.blog_name,
+        body: body_html,
+        meta: &metadata,
+    };
+    s.handlebars
+        .render_to_write("article", &data, out_abs_fd)
+        .with_context(|| format!("while generating from {:?}", metadata.path))?;
 
     Ok(())
 }
@@ -243,9 +285,7 @@ fn sort_article(a: &&Metadata, b: &&Metadata) -> Ordering {
 pub(crate) fn generate() -> anyhow::Result<()> {
     let s = State::instance();
 
-    if s.clean {
-        fs_extra::dir::remove(&s.out_dir)?;
-    }
+    fs_extra::dir::remove(&s.out_dir)?;
 
     // copy `public_dir`
     let mut cp_opts = CopyOptions::new();
@@ -307,8 +347,8 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     }
 
     debug!("generating index.html");
-    let out_abs_index_path = s.out_dir.join("index.html");
-    if !out_abs_index_path.exists() {
+    {
+        let out_abs_index_path = s.out_dir.join("index.html");
         // ordering by date(descending). if both are directory, compare by directory name.
         let mut articles: Vec<&Metadata> = articles.iter().collect();
         articles.sort_by(sort_article);
@@ -332,38 +372,36 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     debug!("generating directory-index pages");
     for (out_rel_dir_path, entry) in directories.into_iter() {
         let out_abs_file_path = s.out_dir.join(&out_rel_dir_path).join("index.html");
-        if !out_abs_file_path.exists() {
-            // index page
-            let out_rel_dir_name = out_rel_dir_path.to_string_lossy().to_string();
-            if out_rel_dir_name == "/" {
-                continue;
-            }
-
-            // ordering by date(descending). if both are directory, compare by directory name.
-            let mut articles: Vec<&Metadata> = entry
-                .iter()
-                .map(|e| match e {
-                    Either::Left(idx) => &articles[*idx],
-                    Either::Right(meta) => meta,
-                })
-                .collect();
-            articles.sort_by(sort_article);
-
-            let list_data = ListPageData {
-                blog_name: &s.blog_name,
-                title: out_rel_dir_name,
-                path: out_rel_dir_path,
-                articles,
-            };
-
-            let out_abs_file_fd = OpenOptions::new()
-                .write(true)
-                .create(true)
-                .open(out_abs_file_path)?;
-            s.handlebars
-                .render_to_write("list", &list_data, out_abs_file_fd)
-                .with_context(|| format!("while generating list for {:?}", list_data.title))?;
+        // index page
+        let out_rel_dir_name = out_rel_dir_path.to_string_lossy().to_string();
+        if out_rel_dir_name == "/" {
+            continue;
         }
+
+        // ordering by date(descending). if both are directory, compare by directory name.
+        let mut articles: Vec<&Metadata> = entry
+            .iter()
+            .map(|e| match e {
+                Either::Left(idx) => &articles[*idx],
+                Either::Right(meta) => meta,
+            })
+            .collect();
+        articles.sort_by(sort_article);
+
+        let list_data = ListPageData {
+            blog_name: &s.blog_name,
+            title: out_rel_dir_name,
+            path: out_rel_dir_path,
+            articles,
+        };
+
+        let out_abs_file_fd = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(out_abs_file_path)?;
+        s.handlebars
+            .render_to_write("list", &list_data, out_abs_file_fd)
+            .with_context(|| format!("while generating list for {:?}", list_data.title))?;
     }
 
     debug!("generating tag-index pages");
@@ -373,29 +411,27 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         let mut out_abs_file_path = s.out_dir.join(&out_rel_file_path);
         out_abs_file_path.set_extension("html");
 
-        if !out_abs_file_path.exists() {
-            // ordering by date(descending). if both are directory, compare by directory name.
-            let mut articles: Vec<&Metadata> = article_indices
-                .into_iter()
-                .map(|idx| &articles[idx])
-                .collect();
-            articles.sort_by(sort_article);
+        // ordering by date(descending). if both are directory, compare by directory name.
+        let mut articles: Vec<&Metadata> = article_indices
+            .into_iter()
+            .map(|idx| &articles[idx])
+            .collect();
+        articles.sort_by(sort_article);
 
-            let list_data = ListPageData {
-                blog_name: &s.blog_name,
-                title: format!("タグ: {}", tag),
-                path: out_rel_file_path,
-                articles,
-            };
+        let list_data = ListPageData {
+            blog_name: &s.blog_name,
+            title: format!("タグ: {}", tag),
+            path: out_rel_file_path,
+            articles,
+        };
 
-            let abs_abs_file_fd = OpenOptions::new()
-                .write(true)
-                .create(true)
-                .open(out_abs_file_path)?;
-            s.handlebars
-                .render_to_write("list", &list_data, abs_abs_file_fd)
-                .with_context(|| format!("while generating for tag {:?}", tag))?;
-        }
+        let abs_abs_file_fd = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(out_abs_file_path)?;
+        s.handlebars
+            .render_to_write("list", &list_data, abs_abs_file_fd)
+            .with_context(|| format!("while generating for tag {:?}", tag))?;
     }
 
     Ok(())
