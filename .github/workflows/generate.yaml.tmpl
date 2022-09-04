@@ -17,7 +17,7 @@ jobs:
           BLOG_NAME: "blog name"
       - uses: EndBug/add-and-commit@v9
         with:
-          add: out
+          add: cache.json
           default_author: user_info
       - uses: actions/upload-pages-artifact@v1
         with:

@@ -2,8 +2,14 @@ use anyhow::{bail, Context};
 use clap::{command, Arg};
 use generator::generate;
 use handlebars::handlebars_helper;
+use serde_json::Map;
 use state::State;
-use std::{collections::HashMap, path::PathBuf, sync::Mutex};
+use std::{
+    fs::{File, OpenOptions},
+    io::{BufReader, BufWriter},
+    path::PathBuf,
+    sync::Mutex,
+};
 
 mod generator;
 mod metadata;
@@ -55,11 +61,6 @@ fn main() -> anyhow::Result<()> {
                 .takes_value(true)
                 .value_parser(clap::value_parser!(PathBuf))
                 .default_value("template"),
-            Arg::new("clean")
-                .short('c')
-                .long("clean")
-                .help("Cleanup out_dir (cause force-overwrite)")
-                .action(clap::ArgAction::SetTrue),
         ])
         .get_matches();
 
@@ -96,19 +97,40 @@ fn main() -> anyhow::Result<()> {
         std::fs::read_to_string(template_dir.join("layout.hbs")).context("header.hbs")?,
     )?;
 
-    let clean = matches.get_one::<bool>("clean").unwrap().to_owned();
+    let cache_json_path = PathBuf::from("cache.json");
+    let cache_data = {
+        if cache_json_path.exists() {
+            let fd = File::open(&cache_json_path)?;
+            let reader = BufReader::new(fd);
+            serde_json::from_reader(reader)?
+        } else {
+            Map::new()
+        }
+    };
 
     state::STATE
         .set(State {
             article_dir: article_dir.to_owned(),
             out_dir: out_dir.to_owned(),
             public_dir: public_dir.to_owned(),
-            clean,
             blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
             handlebars,
-            opengraph_cache: Mutex::new(HashMap::new()),
+            opengraph_cache: Mutex::new(cache_data),
         })
         .unwrap();
 
-    generate()
+    generate()?;
+
+    // save cache
+    {
+        let cache_json_fd = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(&cache_json_path)?;
+        let writer = BufWriter::new(cache_json_fd);
+        let cache = state::STATE.get().unwrap().opengraph_cache.lock().unwrap();
+        serde_json::to_writer_pretty(writer, &*cache)?;
+    }
+
+    Ok(())
 }

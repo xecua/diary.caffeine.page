@@ -1,7 +1,7 @@
-use std::{collections::HashMap, path::PathBuf, sync::Mutex};
+use std::{path::PathBuf, sync::Mutex};
 
 use once_cell::sync::OnceCell;
-use webpage::Opengraph;
+use serde_json::{Map, Value};
 
 #[derive(Debug)]
 pub(crate) struct State {
@@ -9,12 +9,10 @@ pub(crate) struct State {
     pub out_dir: PathBuf,
     pub public_dir: PathBuf,
 
-    pub clean: bool,
-
     pub blog_name: String,
 
     pub handlebars: handlebars::Handlebars<'static>,
-    pub opengraph_cache: Mutex<HashMap<String, Option<Opengraph>>>,
+    pub opengraph_cache: Mutex<Map<String, Value>>,
 }
 
 pub(super) static STATE: OnceCell<State> = OnceCell::new();
