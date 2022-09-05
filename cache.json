@@ -62,6 +62,20 @@
     "type": "book",
     "url": "https://seiga.nicovideo.jp/comic/55845"
   },
+  "https://sleepygamersmemo.blogspot.com/2021/11/audio-playback-device-disconnected.html": {
+    "description": "数分間PCを操作しないとサウンドデバイスが無効化されて無音になる問題の解決策をメモメモ…",
+    "thumb_url": "https://1.bp.blogspot.com/-HHr0c4RtC-I/YZIjgyLBcNI/AAAAAAAAZFQ/tLmqDzM25xcm3OStx_I8rvo7rN-dltZSQCLcBGAsYHQ/w1200-h630-p-k-no-nu/windows10soundcontrolpanel.png",
+    "title": "サウンドデバイスが勝手に無効化される",
+    "type": "website",
+    "url": "https://sleepygamersmemo.blogspot.com/2021/11/audio-playback-device-disconnected.html"
+  },
+  "https://twitter.com/elonmusk": {
+    "description": "Mars & Cars, Chips & Dips",
+    "thumb_url": "https://pbs.twimg.com/profile_images/1529956155937759233/Nyn1HZWF_normal.jpg",
+    "title": "Elon Musk (@elonmusk) / Twitter",
+    "type": "profile",
+    "url": "https://twitter.com/elonmusk"
+  },
   "https://www.asahi-net.or.jp/~ax2s-kmtn/ref/jis_restore.html": null,
   "https://www.twitch.tv/videos/1562454897?collection=3JK46mHPCxeeIw": {
     "description": "rtainjapan went live on Twitch. Catch up on their Good Job! VOD now.",
@@ -71,32 +85,32 @@
     "url": "https://www.twitch.tv/videos/1562454897"
   },
   "https://www.youtube.com/watch?v=-MpI7HUzI28": {
-    "title": "仮面ライダー龍騎　第04話[公式]",
     "description": "仮面ライダー龍騎　第04話　学校の怪談２少女を襲うダークウイング。蓮はモンスターを強化しようとするあまり、ダークウイングに人間を襲わせているのか？　真司の疑念をよそに、蓮の不審な行動は止まらない。だが優衣は真司の言葉に耳を貸そうとしなかった。そして真司は、蓮との対決に挑む。戦わなければ生き残れない！仮面ライダーシ...",
-    "url": "https://www.youtube.com/watch?v=-MpI7HUzI28",
+    "thumb_url": "https://i.ytimg.com/vi/-MpI7HUzI28/hqdefault.jpg",
+    "title": "仮面ライダー龍騎　第04話[公式]",
     "type": "video.other",
-    "thumb_url": "https://i.ytimg.com/vi/-MpI7HUzI28/hqdefault.jpg"
+    "url": "https://www.youtube.com/watch?v=-MpI7HUzI28"
   },
   "https://www.youtube.com/watch?v=6Z8Ko1lYnL4": {
-    "title": "仮面ライダー龍騎　第03話[公式]",
     "description": "仮面ライダー龍騎　第03話　学校の怪談仮面ライダー龍騎となった真司。彼の元に現われたのは、行方不明になった優衣の兄・神崎士郎だった。カードデッキと仮面ライダーをつくり出した男。士郎は「ライダーを倒すんだ」と、謎めいた言葉を真司に残す。そんな兄の真意を疑う優衣に、真司は……。戦わなければ生き残れない！仮面ライダーシ...",
-    "url": "https://www.youtube.com/watch?v=6Z8Ko1lYnL4",
+    "thumb_url": "https://i.ytimg.com/vi/6Z8Ko1lYnL4/hqdefault.jpg",
+    "title": "仮面ライダー龍騎　第03話[公式]",
     "type": "video.other",
-    "thumb_url": "https://i.ytimg.com/vi/6Z8Ko1lYnL4/hqdefault.jpg"
+    "url": "https://www.youtube.com/watch?v=6Z8Ko1lYnL4"
   },
   "https://www.youtube.com/watch?v=7aZOpJJRYHM": {
-    "title": "仮面ライダーエグゼイド　第37話[公式]",
     "description": "仮面ライダーエグゼイド 第37話「White knightの覚悟！」「エグゼイドを絶版にしろ！」という正宗（貴水博之）の命令を拒否する飛彩（瀬戸利樹）。しかし、正宗は永夢（飯島寛騎）からエグゼイドに変身する能力を奪い取るため、パラド（甲斐翔真）を倒せと指示する。ゲーム病患者を救うため、カイデンバグスターに戦いを挑...",
-    "url": "https://www.youtube.com/watch?v=7aZOpJJRYHM",
+    "thumb_url": "https://i.ytimg.com/vi/7aZOpJJRYHM/hqdefault.jpg",
+    "title": "仮面ライダーエグゼイド　第37話[公式]",
     "type": "video.other",
-    "thumb_url": "https://i.ytimg.com/vi/7aZOpJJRYHM/hqdefault.jpg"
+    "url": "https://www.youtube.com/watch?v=7aZOpJJRYHM"
   },
   "https://www.youtube.com/watch?v=bsJ0Fj2qE3M": {
-    "title": "仮面ライダーエグゼイド　第38話[公式]",
     "description": "仮面ライダーエグゼイド 第38話「涙のperiod」瀕死の重傷を負って聖都大学附属病院に運び込まれた大我（松本享恭）。緊急手術が必要となり、天才外科医・飛彩（瀬戸利樹）が執刀することになる。しかし、正宗（貴水博之）は飛彩に大我の手術を許可するかわりに、わざと失敗し大我の命を奪えと命令する。クロノスは永夢（飯島寛騎...",
-    "url": "https://www.youtube.com/watch?v=bsJ0Fj2qE3M",
+    "thumb_url": "https://i.ytimg.com/vi/bsJ0Fj2qE3M/hqdefault.jpg",
+    "title": "仮面ライダーエグゼイド　第38話[公式]",
     "type": "video.other",
-    "thumb_url": "https://i.ytimg.com/vi/bsJ0Fj2qE3M/hqdefault.jpg"
+    "url": "https://www.youtube.com/watch?v=bsJ0Fj2qE3M"
   },
   "https://youtu.be/OGf40wdWcGs": {
     "description": "仮面ライダー龍騎　第01話　誕生秘話ミラーワールドのモンスターに狙われた人々が襲われる事件が発生。事件を追っていたジャーナリストの卵・城戸真司は奇妙なカードデッキを拾ったことをきっかけに、モンスターと戦う能力を持った「仮面ライダー」となり、激しい戦いに巻き込まれていく……。戦わなければ生き残れない！仮面ライダーシ...",
