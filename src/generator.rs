@@ -167,6 +167,10 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
                                     c
                                 )
                             }
+                            if let Some(Value::String(description)) = c.get("description") {
+                                og.properties
+                                    .insert("description".to_string(), description.clone());
+                            }
 
                             if ogp_replacing {
                                 // あんまり行儀がよくない
@@ -198,12 +202,22 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
                             let mut cache = s.opengraph_cache.lock().unwrap();
                             cache.insert(
                                 url.to_string(),
-                                json!({
-                                    "type": og.og_type,
-                                    "title": og.properties["title"],
-                                    "url": og.properties["url"],
-                                    "thumb_url": og.images[0].url
-                                }),
+                                if og.properties.contains_key("description") {
+                                    json!({
+                                        "type": og.og_type,
+                                        "title": og.properties["title"],
+                                        "url": og.properties["url"],
+                                        "description": og.properties["description"],
+                                        "thumb_url": og.images[0].url
+                                    })
+                                } else {
+                                    json!({
+                                        "type": og.og_type,
+                                        "title": og.properties["title"],
+                                        "url": og.properties["url"],
+                                        "thumb_url": og.images[0].url
+                                    })
+                                },
                             );
                         }
                         ogp_replacing = true;
