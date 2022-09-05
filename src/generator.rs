@@ -336,62 +336,57 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         generate_article(article)?;
     }
 
-    debug!("generating index.html");
-    {
-        let out_abs_index_path = s.out_dir.join("index.html");
-        // ordering by date(descending). if both are directory, compare by directory name.
-        let mut articles: Vec<&Metadata> = articles.iter().collect();
-        articles.sort_by(sort_article);
-
-        let index_data = ListPageData {
-            blog_name: &s.blog_name,
-            title: "index".to_string(),
-            path: PathBuf::from("/"),
-            articles,
-        };
-
-        let out_abs_index_fd = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(out_abs_index_path)?;
-        s.handlebars
-            .render_to_write("index", &index_data, out_abs_index_fd)
-            .context("while generating index.html")?;
-    }
-
     debug!("generating directory-index pages");
     for (out_rel_dir_path, entry) in directories.into_iter() {
         let out_abs_file_path = s.out_dir.join(&out_rel_dir_path).join("index.html");
         // index page
         let out_rel_dir_name = out_rel_dir_path.to_string_lossy().to_string();
+
         if out_rel_dir_name.is_empty() {
-            continue;
+            // ordering by date(descending). if both are directory, compare by directory name.
+            let mut articles: Vec<&Metadata> = articles.iter().collect();
+            articles.sort_by(sort_article);
+
+            let index_data = ListPageData {
+                blog_name: &s.blog_name,
+                title: "index".to_string(),
+                path: PathBuf::from("/"),
+                articles,
+            };
+
+            let out_abs_index_fd = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(out_abs_file_path)?;
+            s.handlebars
+                .render_to_write("index", &index_data, out_abs_index_fd)
+                .context("while generating index.html")?;
+        } else {
+            // ordering by date(descending). if both are directory, compare by directory name.
+            let mut articles: Vec<&Metadata> = entry
+                .iter()
+                .map(|e| match e {
+                    Either::Left(idx) => &articles[*idx],
+                    Either::Right(meta) => meta,
+                })
+                .collect();
+            articles.sort_by(sort_article);
+
+            let list_data = ListPageData {
+                blog_name: &s.blog_name,
+                title: out_rel_dir_name,
+                path: out_rel_dir_path,
+                articles,
+            };
+
+            let out_abs_file_fd = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(out_abs_file_path)?;
+            s.handlebars
+                .render_to_write("list", &list_data, out_abs_file_fd)
+                .with_context(|| format!("while generating list for {:?}", list_data.title))?;
         }
-
-        // ordering by date(descending). if both are directory, compare by directory name.
-        let mut articles: Vec<&Metadata> = entry
-            .iter()
-            .map(|e| match e {
-                Either::Left(idx) => &articles[*idx],
-                Either::Right(meta) => meta,
-            })
-            .collect();
-        articles.sort_by(sort_article);
-
-        let list_data = ListPageData {
-            blog_name: &s.blog_name,
-            title: out_rel_dir_name,
-            path: out_rel_dir_path,
-            articles,
-        };
-
-        let out_abs_file_fd = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(out_abs_file_path)?;
-        s.handlebars
-            .render_to_write("list", &list_data, out_abs_file_fd)
-            .with_context(|| format!("while generating list for {:?}", list_data.title))?;
     }
 
     debug!("generating tag-index pages");
