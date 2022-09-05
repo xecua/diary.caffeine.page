@@ -1,8 +1,8 @@
 use anyhow::{bail, Context};
 use clap::{command, Arg};
 use generator::generate;
-use handlebars::{handlebars_helper, Handlebars, Helper, RenderContext, RenderError, ScopedJson};
-use serde_json::{Map, Value};
+use handlebars::handlebars_helper;
+use serde_json::Map;
 use state::State;
 use std::{
     fs::{File, OpenOptions},
@@ -88,6 +88,8 @@ fn main() -> anyhow::Result<()> {
     let mut handlebars = handlebars::Handlebars::new();
     handlebars.register_helper("breadcrumbs", Box::new(breadcrumbs));
     handlebars.register_helper("slice", Box::new(slice));
+    handlebars.register_helper("slice_since", Box::new(slice_since));
+    handlebars.register_helper("slice_until", Box::new(slice_until));
     handlebars
         .register_template_file("index", template_dir.join("index.hbs"))
         .context("index.hbs")?;

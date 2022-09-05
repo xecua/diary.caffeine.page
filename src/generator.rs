@@ -370,8 +370,8 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 })
                 .collect();
             dir_items.sort_by(sort_article);
-            let mut articles: Vec<&Metadata> = articles.into_iter().take(30).collect();
-            // 先頭30件が最新、それ以外は
+            let mut articles: Vec<&Metadata> = articles.into_iter().take(10).collect();
+            // 先頭30件が最新(30件溜まるまで暫定で10件)、それ以外はエントリ
             articles.append(&mut dir_items);
 
             let index_data = ListPageData {
