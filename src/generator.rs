@@ -345,6 +345,8 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         }
     }
 
+    debug!("{directories:#?}");
+
     debug!("generating articles");
     for article in articles.iter() {
         generate_article(article)?;
@@ -357,9 +359,20 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         let out_rel_dir_name = out_rel_dir_path.to_string_lossy().to_string();
 
         if out_rel_dir_name.is_empty() {
-            // ordering by date(descending). if both are directory, compare by directory name.
+            // root index.html
             let mut articles: Vec<&Metadata> = articles.iter().collect();
             articles.sort_by(sort_article);
+            let mut dir_items: Vec<&Metadata> = entry
+                .iter()
+                .map(|e| match e {
+                    Either::Left(idx) => &articles[*idx],
+                    Either::Right(meta) => meta,
+                })
+                .collect();
+            dir_items.sort_by(sort_article);
+            let mut articles: Vec<&Metadata> = articles.into_iter().take(30).collect();
+            // 先頭30件が最新、それ以外は
+            articles.append(&mut dir_items);
 
             let index_data = ListPageData {
                 blog_name: &s.blog_name,

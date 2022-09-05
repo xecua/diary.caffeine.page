@@ -1,7 +1,13 @@
 {{#> layout }}
     {{#*inline "main"}}
         <ul>
-        {{#each articles}}
+        {{#each (slice_since articles 30)}}
+            <li><a href="/{{path}}">{{title}}{{#if date}} ({{date}}){{/if}}</a></li>
+        {{/each}}
+        </ul>
+        <div style="border-top: solid black 1Q; padding-top: 1rem">最新の30件</div>
+        <ul>
+        {{#each (slice_until articles 30)}}
             <li><a href="/{{path}}">{{title}}{{#if date}} ({{date}}){{/if}}</a></li>
         {{/each}}
         </ul>
