@@ -134,11 +134,11 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
             Event::Start(Tag::Link(pulldown_cmark::LinkType::Autolink, ref url, _)) => {
                 // fetch OGP info
                 {
+                    ogp_replacing = true;
+
                     let cache = s.opengraph_cache.lock().unwrap();
                     if let Some(c) = cache.get(&url.to_string()) {
                         if *c != Value::Null {
-                            let mut ogp_replacing = true;
-
                             let mut og = Opengraph::empty();
                             if let Some(Value::String(og_type)) = c.get("type") {
                                 og.og_type = og_type.clone();
@@ -174,7 +174,6 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
 
                             if ogp_replacing {
                                 // あんまり行儀がよくない
-
                                 return Event::Html(render_card(&og).into());
                             }
                         }

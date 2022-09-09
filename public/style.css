@@ -11,6 +11,12 @@ body {
   font-family: "M PLUS 1", sans-serif;
 }
 
+blockquote {
+  background: #ccc;
+  padding-inline: 1em;
+  border-left: solid #008 2mm;
+}
+
 code {
   font-family: "M PLUS 1 Code", monospace;
 }
