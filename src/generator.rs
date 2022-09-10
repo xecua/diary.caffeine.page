@@ -344,8 +344,6 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         }
     }
 
-    debug!("{directories:#?}");
-
     debug!("generating articles");
     for article in articles.iter() {
         generate_article(article)?;
