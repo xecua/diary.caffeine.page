@@ -99,6 +99,7 @@ a.og-href {
 
 .og-image-wrap {
   height: 100%;
+  max-width: 30%;
   flex: 0 0 auto;
 }
 
