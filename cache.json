@@ -83,6 +83,13 @@
     "type": "article",
     "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25692&partId=25692008"
   },
+  "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25692&partId=25692009": {
+    "description": "セリとカラオケに行くことになったコウ。セリは最近、恋愛感情を拗らせた通称ダル男に付きまとわれているようで、カラオケ中もドア越しに中を除く人物が現れる。ダル男の存在が面倒になったセリは、殺そうと決意するが……。",
+    "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/69/2/0/09/25692009_1_d2.jpg?1661833842284",
+    "title": "よふかしのうた 第9夜 ずるい",
+    "type": "article",
+    "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25692&partId=25692009"
+  },
   "https://blog.deltabox.site/post/2021/02/use_yasskkserv2_as_skk_dic_server/": {
     "description": "久々に４連休となったので、たまには頻度高めにブログを書いてみることにします。\n今回は、前回SKKにしたということを書きましたが、それの辞書サーバーについて書いてみようと思います。",
     "thumb_url": "https://blog.deltabox.site/img/avatar.jpg",
@@ -96,6 +103,13 @@
     "title": "よく使う(?)コピペをまとめたやつ",
     "type": "article",
     "url": "https://gist.github.com/xecua/3c6ca9350160106e30e82a4668410f53"
+  },
+  "https://lycoris-recoil.com/story/?id=ep11": {
+    "description": "オリジナルTVアニメーション「リコリス・リコイル」2022年7月放送開始！",
+    "thumb_url": "https://lycoris-recoil.com/ogp3.png",
+    "title": "オリジナルTVアニメーション「リコリス・リコイル」公式サイト",
+    "type": "website",
+    "url": "https://lycoris-recoil.com/"
   },
   "https://seiga.nicovideo.jp/comic/55845": {
     "description": "最新話:第13話 2022/09/03更新。再生（累計）: 467418。 全話無料。 ブラックな求人誌制作会社で、日々心と体を蝕まれる入社半年の新人・夏鈴。\nある日先輩の癒衣さんに、体をほぐすマッサージをしてもらうことにな…",
@@ -218,6 +232,13 @@
     "type": "video.other",
     "url": "https://www.youtube.com/watch?v=s-LgGBNfCUk"
   },
+  "https://www.youtube.com/watch?v=uSTQloMHx7M": {
+    "description": "仮面ライダー龍騎　第07話　新種誕生？花鶏のオーナーでもある優衣の叔母・沙奈子が長い旅行から帰ってきた。だが沙奈子は蓮が気に入らないのか、さっそく蓮と衝突。一方、真司が取材で出会った、弁護士・北岡秀一。やがて北岡ともども、真司は怪しい男たちに追われるハメに……。戦わなければ生き残れない！仮面ライダーシリーズ史上空...",
+    "thumb_url": "https://i.ytimg.com/vi/uSTQloMHx7M/maxresdefault.jpg",
+    "title": "仮面ライダー龍騎　第07話[公式]",
+    "type": "video.other",
+    "url": "https://www.youtube.com/watch?v=uSTQloMHx7M"
+  },
   "https://www.youtube.com/watch?v=ud13a2LZqhU": {
     "description": "仮面ライダーエグゼイド 第40話「運命のreboot！」自らの手でパラド（甲斐翔真）を消滅させた永夢（飯島寛騎）。エグゼイドに変身できなくなった永夢に代わり、飛彩（瀬戸利樹）、大我（松本享恭）、黎斗（岩永徹也）、貴利矢（小野塚勇人）が正宗（貴水博之）に戦いを挑むが、黎斗以外の3人はドライバーとガシャットをクロノス...",
     "thumb_url": "https://i.ytimg.com/vi/ud13a2LZqhU/hqdefault.jpg",
@@ -231,6 +252,13 @@
     "title": "仮面ライダー龍騎　第05話[公式]",
     "type": "video.other",
     "url": "https://www.youtube.com/watch?v=wzR2MjL7vps"
+  },
+  "https://xecua.hatenablog.com/entry/2022/09/12/142031": {
+    "description": "ちゃんとログ読もうね〜という話 ここ数日dev-util/cmake::gentooのアプデ(3.23.3)が降ってきているにも関わらずビルドがコケてアプデできていませんでした。 自分自身は別に(間接的にしか)使ってないんですが、あまり気分がいい状態ではないのでなんとな〜く調査しつつもめんどくさそうだな〜と思って手を出さずにいました。 ちなみに同じくGentooを使っている知人は普通に入っているらしい(そっちはsystemdがビルドできないらしい。私は普通にできてますが)。 んで今日やるか〜となったのでそのログ。 調査 まずはログを読む。 実はこの画像に答えが書いてある jsoncppのシンボ…",
+    "thumb_url": "https://cdn-ak.f.st-hatena.com/images/fotolife/x/xecua/20220912/20220912133530.png",
+    "title": "cmakeがビルドできねえ!どいつが悪いんだ?→お前 - かふぇいん中毒",
+    "type": "article",
+    "url": "https://xecua.hatenablog.com/entry/2022/09/12/142031"
   },
   "https://youtu.be/OGf40wdWcGs": {
     "description": "仮面ライダー龍騎　第01話　誕生秘話ミラーワールドのモンスターに狙われた人々が襲われる事件が発生。事件を追っていたジャーナリストの卵・城戸真司は奇妙なカードデッキを拾ったことをきっかけに、モンスターと戦う能力を持った「仮面ライダー」となり、激しい戦いに巻き込まれていく……。戦わなければ生き残れない！仮面ライダーシ...",
