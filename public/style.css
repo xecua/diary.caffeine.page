@@ -72,6 +72,7 @@ a.og-href {
 .og-text {
   display: flex;
   box-sizing: border-box;
+  margin-inline-end: 2em;
   padding-block: 2.5mm;
   flex: 1 1 auto;
   flex-direction: column;
