@@ -76,6 +76,20 @@
     "type": "article",
     "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690008"
   },
+  "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690009": {
+    "description": "さわやかな空のなかで、気球に揺られて現実逃避する邪神ちゃん。自然豊かな富良野の気候に、目から耳から癒やされながら、借金のことは忘れてしまおう…。そんな無責任な邪神ちゃんを何とか現実に引き戻そうと、メデューサは様々な提案を繰り出す…。そして、メロン農園にやってきた邪神ちゃんは、ついに働くことを決心する。本気の目をした邪神ちゃんに、強く感動したメデューサだったが…。",
+    "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/69/0/0/09/25690009_1_d2.jpg?1661486459735",
+    "title": "邪神ちゃんドロップキックX 第9話 富良野に潤むラベンダー色の瞳",
+    "type": "article",
+    "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690009"
+  },
+  "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690010": {
+    "description": "「ゆりねがいなくなってしまった…！」不安になった邪神ちゃんは、メデューサたちを呼び寄せて、緊急会議をすることに。見捨てられたのかと落ち込む邪神ちゃんを、静かに見守る仲間たち。心当たりはないの？と聞かれ、邪神ちゃんはあるエピソードを思い出すのだが…。残された手紙を頼りに、邪神ちゃんたち御一行は、花園神社に向かうことに。悪魔よけの結界があるかもしれないと恐る恐る進む一同は…。",
+    "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/69/0/0/10/25690010_1_d2.jpg?1662091261613",
+    "title": "邪神ちゃんドロップキックX 第10話 大空に聞け！ 私の名は邪神ちゃんですの！",
+    "type": "article",
+    "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690010"
+  },
   "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25692&partId=25692008": {
     "description": "ナズナ以外の吸血鬼、セリ、ニコ、ミドリ、ハツカ、カブラと知り合ったコウ。そして、初めて血を吸われてから1年以内に吸血鬼にならなかった人間は、一生吸血鬼になれないということを知り……。",
     "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/69/2/0/08/25692008_1_d2.jpg?1661317206560",
@@ -110,6 +124,20 @@
     "title": "よく使う(?)コピペをまとめたやつ",
     "type": "article",
     "url": "https://gist.github.com/xecua/3c6ca9350160106e30e82a4668410f53"
+  },
+  "https://github.com/microsoft/wslg/issues/173#issuecomment-849379966": {
+    "description": "Is your feature request related to a problem? Please describe. I use dvorak keyboard layout, and I can not find a way to change the wslg keyboard from qwerty to dvorak Describe the solution you&#39...",
+    "thumb_url": "https://opengraph.githubassets.com/30d46d5b7e5c61b527cc52359086b975772a1ac09d7ba6251a156f7d355560f2/microsoft/wslg/issues/173",
+    "title": "support customized keyboard layout (with KLC file) · Issue #173 · microsoft/wslg",
+    "type": "object",
+    "url": "https://github.com/microsoft/wslg/issues/173"
+  },
+  "https://github.com/microsoft/wslg/issues/27#issuecomment-913691871": {
+    "description": "When I try to type any text on any of the GUI applicatuins, the letter doesnt matches the keyboard layout (it works just fine from the command prompt).",
+    "thumb_url": "https://opengraph.githubassets.com/cbb227552045da05d06c2d2d79ebcd4c30dd782ba4e826abd0f0c354f59a0419/microsoft/wslg/issues/27",
+    "title": "Keyboard layout messed up for KBD_PORTUGUESE_BRAZILIAN_ABNT2. · Issue #27 · microsoft/wslg",
+    "type": "object",
+    "url": "https://github.com/microsoft/wslg/issues/27"
   },
   "https://lycoris-recoil.com/story/?id=ep11": {
     "description": "オリジナルTVアニメーション「リコリス・リコイル」2022年7月放送開始！",
