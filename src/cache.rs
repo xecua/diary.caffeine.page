@@ -5,13 +5,18 @@ use std::{
 };
 
 use anyhow::anyhow;
+use log::info;
 use serde_json::{Map, Value};
 
 pub(super) fn load_cache(cache_file_path: &Path) -> anyhow::Result<Map<String, Value>> {
-    let fd = File::open(&cache_file_path)?;
-    let reader = BufReader::new(fd);
-
-    serde_json::from_reader(reader).map_err(|e| anyhow!(e))
+    if cache_file_path.exists() {
+        let fd = File::open(&cache_file_path)?;
+        let reader = BufReader::new(fd);
+        serde_json::from_reader(reader).map_err(|e| anyhow!(e))
+    } else {
+        info!("Cache file({cache_file_path:?}) does not exist. ignoring...",);
+        Ok(Map::new())
+    }
 }
 
 pub(super) fn save_cache(cache_file_path: &Path, cache: &Map<String, Value>) -> anyhow::Result<()> {

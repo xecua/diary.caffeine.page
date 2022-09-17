@@ -7,7 +7,6 @@ use std::{path::PathBuf, sync::Mutex};
 
 mod cache;
 mod generator;
-mod metadata;
 mod renderer;
 mod state;
 

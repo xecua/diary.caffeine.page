@@ -1,0 +1,10 @@
+{
+  "https://example.com": null,
+  "https://github.com": {
+    "description": "GitHub is where over 83 million developers shape the future of software, together. Contribute to the open source community, manage your Git repositories, review code like a pro, track bugs and feat...",
+    "thumb_url": "https://github.githubassets.com/images/modules/site/social-cards/github-social.png",
+    "title": "GitHub: Where the world builds software",
+    "type": "object",
+    "url": "https://github.com/"
+  }
+}
