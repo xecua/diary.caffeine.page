@@ -193,7 +193,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             let mut dir_items: Vec<&Metadata> = entry
                 .iter()
                 .map(|e| match e {
-                    Either::Left(idx) => &articles[*idx],
+                    Either::Left(idx) => articles[*idx],
                     Either::Right(meta) => meta,
                 })
                 .collect();
