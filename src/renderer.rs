@@ -1,3 +1,4 @@
+use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
 use anyhow::Context;
@@ -13,12 +14,13 @@ handlebars_helper!(breadcrumbs: |path: PathBuf| {
     res.push_str("<a href=\"/\">/</a> ");
     for (i, c) in components.enumerate() {
         current_path.push(c);
-        res.push_str(
-            &format!("{}<a href=\"{}\">{}</a>",
+        let _ = write!(
+            res,
+            "{}<a href=\"{}\">{}</a>",
             if i == 0 {""} else {" / "},
             current_path.to_string_lossy(),
             current_path.file_stem().unwrap().to_string_lossy() // file_prefix: unstable
-        ));
+        );
     }
 
     res

@@ -56,7 +56,7 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
         .unwrap();
     metadata.body = if let Some(caps) = header_pattern.captures(&content) {
         let header = &caps[1];
-        for line in header.split("\n") {
+        for line in header.split('\n') {
             if line.is_empty() {
                 continue;
             }
@@ -73,7 +73,7 @@ fn preprocess_file(file_path: &PathBuf) -> anyhow::Result<Metadata> {
                     metadata.title = value.to_string();
                 }
                 "tag" => {
-                    metadata.tags = value.split(",").map(|s| s.to_string()).collect();
+                    metadata.tags = value.split(',').map(|s| s.to_string()).collect();
                 }
                 "date" => {
                     metadata.date = Some(
@@ -186,7 +186,7 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
                     ..Default::default()
                 };
 
-                if let Ok(webpage) = Webpage::from_url(&url, options) {
+                if let Ok(webpage) = Webpage::from_url(url, options) {
                     std::thread::sleep(std::time::Duration::from_secs(10));
 
                     // OGP Requirements: title, type, url, image. So convert into card only if all of them exist
@@ -194,7 +194,7 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
                     if !og.og_type.is_empty()
                         && og.properties.contains_key("title")
                         && og.properties.contains_key("url")
-                        && og.images.len() >= 1
+                        && !og.images.is_empty()
                     {
                         // caching.
                         {
@@ -267,7 +267,7 @@ fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
     let data = ArticlePageData {
         blog_name: &s.blog_name,
         body: body_html,
-        meta: &metadata,
+        meta: metadata,
     };
     s.handlebars
         .render_to_write("article", &data, out_abs_fd)

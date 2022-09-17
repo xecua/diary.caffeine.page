@@ -65,7 +65,7 @@ fn main() -> anyhow::Result<()> {
             article_dir: article_dir.to_owned(),
             out_dir: out_dir.to_owned(),
             public_dir: public_dir.to_owned(),
-            blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
+            blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
             handlebars,
             opengraph_cache: Mutex::new(load_cache(&cache_file_path)?),
         })
