@@ -1,15 +1,11 @@
-use anyhow::{bail, Context};
+use anyhow::bail;
+use cache::{load_cache, save_cache};
 use clap::{command, Arg};
 use generator::generate;
-use serde_json::Map;
 use state::State;
-use std::{
-    fs::{File, OpenOptions},
-    io::{BufReader, BufWriter},
-    path::PathBuf,
-    sync::Mutex,
-};
+use std::{path::PathBuf, sync::Mutex};
 
+mod cache;
 mod generator;
 mod metadata;
 mod renderer;
@@ -63,6 +59,7 @@ fn main() -> anyhow::Result<()> {
 
     let handlebars = renderer::generate_renderer(template_dir)?;
 
+    let cache_file_path = PathBuf::from("cache.json");
     state::STATE
         .set(State {
             article_dir: article_dir.to_owned(),
@@ -70,22 +67,17 @@ fn main() -> anyhow::Result<()> {
             public_dir: public_dir.to_owned(),
             blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
             handlebars,
-            opengraph_cache: Mutex::new(cache_data),
+            opengraph_cache: Mutex::new(load_cache(&cache_file_path)?),
         })
         .unwrap();
 
     generate()?;
 
     // save cache
-    {
-        let cache_json_fd = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open(&cache_json_path)?;
-        let writer = BufWriter::new(cache_json_fd);
-        let cache = state::STATE.get().unwrap().opengraph_cache.lock().unwrap();
-        serde_json::to_writer_pretty(writer, &*cache)?;
-    }
+    save_cache(
+        &cache_file_path,
+        &state::State::instance().opengraph_cache.lock().unwrap(),
+    )?;
 
     Ok(())
 }
