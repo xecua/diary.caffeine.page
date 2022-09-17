@@ -1,44 +1,14 @@
-use anyhow::{bail, Context};
+use anyhow::bail;
+use cache::{load_cache, save_cache};
 use clap::{command, Arg};
 use generator::generate;
-use handlebars::handlebars_helper;
-use serde_json::Map;
 use state::State;
-use std::{
-    fs::{File, OpenOptions},
-    io::{BufReader, BufWriter},
-    path::PathBuf,
-    sync::Mutex,
-};
+use std::{path::PathBuf, sync::Mutex};
 
+mod cache;
 mod generator;
-mod metadata;
+mod renderer;
 mod state;
-
-handlebars_helper!(breadcrumbs: |path: PathBuf| {
-    let mut current_path = PathBuf::from("/");
-    let mut res = String::new();
-    let mut components = path.components();
-    if path.has_root() {
-        components.next();
-    }
-    res.push_str("<a href=\"/\">/</a> ");
-    for (i, c) in components.enumerate() {
-        current_path.push(c);
-        res.push_str(
-            &format!("{}<a href=\"{}\">{}</a>",
-            if i == 0 {""} else {" / "},
-            current_path.to_string_lossy(),
-            current_path.file_stem().unwrap().to_string_lossy() // file_prefix: unstable
-        ));
-    }
-
-    res
-});
-
-handlebars_helper!(slice_until: |lst: array, upper: usize| lst[..upper].to_owned());
-handlebars_helper!(slice_since: |lst: array, lower: usize| lst[lower..].to_owned());
-handlebars_helper!(slice: |lst: array, lower: usize, upper: usize| lst[lower..upper].to_owned());
 
 fn main() -> anyhow::Result<()> {
     env_logger::init();
@@ -85,59 +55,28 @@ fn main() -> anyhow::Result<()> {
     if !template_dir.exists() || !template_dir.is_dir() {
         bail!("template_dir must be a directory.")
     }
-    let mut handlebars = handlebars::Handlebars::new();
-    handlebars.register_helper("breadcrumbs", Box::new(breadcrumbs));
-    handlebars.register_helper("slice", Box::new(slice));
-    handlebars.register_helper("slice_since", Box::new(slice_since));
-    handlebars.register_helper("slice_until", Box::new(slice_until));
-    handlebars
-        .register_template_file("index", template_dir.join("index.hbs"))
-        .context("index.hbs")?;
-    handlebars
-        .register_template_file("article", template_dir.join("article.hbs"))
-        .context("article.hbs")?;
-    handlebars
-        .register_template_file("list", template_dir.join("list.hbs"))
-        .context("list.hbs")?;
-    handlebars.register_partial(
-        "layout",
-        std::fs::read_to_string(template_dir.join("layout.hbs")).context("header.hbs")?,
-    )?;
 
-    let cache_json_path = PathBuf::from("cache.json");
-    let cache_data = {
-        if cache_json_path.exists() {
-            let fd = File::open(&cache_json_path)?;
-            let reader = BufReader::new(fd);
-            serde_json::from_reader(reader)?
-        } else {
-            Map::new()
-        }
-    };
+    let handlebars = renderer::generate_renderer(template_dir)?;
 
+    let cache_file_path = PathBuf::from("cache.json");
     state::STATE
         .set(State {
             article_dir: article_dir.to_owned(),
             out_dir: out_dir.to_owned(),
             public_dir: public_dir.to_owned(),
-            blog_name: std::env::var("BLOG_NAME").unwrap_or("".to_string()),
+            blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
             handlebars,
-            opengraph_cache: Mutex::new(cache_data),
+            opengraph_cache: Mutex::new(load_cache(&cache_file_path)?),
         })
         .unwrap();
 
     generate()?;
 
     // save cache
-    {
-        let cache_json_fd = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open(&cache_json_path)?;
-        let writer = BufWriter::new(cache_json_fd);
-        let cache = state::STATE.get().unwrap().opengraph_cache.lock().unwrap();
-        serde_json::to_writer_pretty(writer, &*cache)?;
-    }
+    save_cache(
+        &cache_file_path,
+        &state::State::instance().opengraph_cache.lock().unwrap(),
+    )?;
 
     Ok(())
 }
