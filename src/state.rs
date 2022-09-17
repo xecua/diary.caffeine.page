@@ -10,6 +10,7 @@ pub(crate) struct State {
     pub public_dir: PathBuf,
 
     pub blog_name: String,
+    pub blog_url: String,
 
     pub handlebars: handlebars::Handlebars<'static>,
     pub opengraph_cache: Mutex<Map<String, Value>>,

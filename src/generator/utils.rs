@@ -7,7 +7,7 @@ use webpage::{Opengraph, OpengraphObject, Webpage, WebpageOptions};
 
 use crate::state::State;
 
-use super::data::Metadata;
+use super::data::ArticleMetadata;
 
 pub(super) fn render_card(og: &Opengraph) -> String {
     // TODO: change element by og_type
@@ -35,7 +35,7 @@ pub(super) fn render_card(og: &Opengraph) -> String {
     )
 }
 
-pub(super) fn sort_article(a: &&Metadata, b: &&Metadata) -> Ordering {
+pub(super) fn sort_article(a: &&ArticleMetadata, b: &&ArticleMetadata) -> Ordering {
     match (a.date, b.date) {
         (Some(ref a_date), Some(ref b_date)) => b_date.cmp(a_date),
         (Some(_), None) => std::cmp::Ordering::Greater,

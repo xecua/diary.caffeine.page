@@ -15,6 +15,7 @@ jobs:
       - run: cargo run --release
         env:
           BLOG_NAME: "だしがら"
+          BLOG_URL: "https://diary.caffeine.page"
       - uses: EndBug/add-and-commit@v9
         with:
           add: cache.json

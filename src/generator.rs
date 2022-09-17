@@ -1,19 +1,23 @@
 use std::{
     collections::{HashMap, VecDeque},
-    fs::OpenOptions,
+    fs::{Metadata as FileMetadata, OpenOptions},
+    io::BufWriter,
+    iter::FromIterator,
     path::PathBuf,
+    time::SystemTime,
 };
 
 use anyhow::{bail, Context};
 
-use chrono::NaiveDate;
+use atom_syndication::{EntryBuilder, FeedBuilder, LinkBuilder};
+use chrono::{Local, NaiveDate};
 use either::Either;
 use fs_extra::dir::CopyOptions;
 use log::debug;
 use pulldown_cmark::{html, Options, Parser};
 
 use self::{
-    data::{ArticlePageData, ListPageData, Metadata},
+    data::{ArticleMetadata, ArticlePageData, ListPageData},
     utils::{gen_parser_event_iterator, sort_article},
 };
 use crate::state::State;
@@ -21,19 +25,23 @@ use crate::state::State;
 mod data;
 mod utils;
 
-fn preprocess_article(file_path: &PathBuf) -> anyhow::Result<Metadata> {
+fn preprocess_article(
+    file_path: &PathBuf,
+    file_meta: FileMetadata,
+) -> anyhow::Result<ArticleMetadata> {
     let s = State::instance();
     let path = s.article_dir.join(file_path);
 
     let mut file_path_html: PathBuf = file_path.clone();
     file_path_html.set_extension("html");
 
-    let mut metadata = Metadata {
+    let mut metadata = ArticleMetadata {
         title: "".to_string(),
         tags: vec![],
         date: None,
         path: file_path_html,
         body: "".to_string(),
+        file_meta,
     };
 
     let content = std::fs::read_to_string(&path)?;
@@ -81,7 +89,7 @@ fn preprocess_article(file_path: &PathBuf) -> anyhow::Result<Metadata> {
     Ok(metadata)
 }
 
-fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
+fn generate_article(metadata: &ArticleMetadata) -> anyhow::Result<()> {
     let s = State::instance();
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
@@ -133,7 +141,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
 
     // subdirectory data
     // left: index of `articles` / right: directory(pseudo entry data)
-    let mut directories: HashMap<PathBuf, Vec<Either<usize, Metadata>>> = HashMap::new();
+    let mut directories: HashMap<PathBuf, Vec<Either<usize, ArticleMetadata>>> = HashMap::new();
     let mut tags: HashMap<String, Vec<usize>> = HashMap::new();
 
     // traversing `article_dir`
@@ -153,16 +161,17 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 q.push_back(directory_path.clone());
 
                 let directory_name = entry.file_name().to_string_lossy().to_string();
-                (*entries_in_current_path).push(Either::Right(Metadata {
+                (*entries_in_current_path).push(Either::Right(ArticleMetadata {
                     title: directory_name,
                     tags: vec![],
                     date: None,
                     path: directory_path,
                     body: "".to_string(),
+                    file_meta: meta,
                 }));
             } else if meta.is_file() {
-                let article_meta =
-                    preprocess_article(&path.join(entry.file_name())).with_context(|| {
+                let article_meta = preprocess_article(&path.join(entry.file_name()), meta)
+                    .with_context(|| {
                         format!("while preprocessing {:?}", &path.join(entry.file_name()))
                     })?;
                 for tag in article_meta.tags.iter() {
@@ -188,9 +197,60 @@ pub(crate) fn generate() -> anyhow::Result<()> {
 
         if out_rel_dir_name.is_empty() {
             // root index.html
-            let mut articles: Vec<&Metadata> = articles.iter().collect();
+            let mut articles: Vec<&ArticleMetadata> = articles.iter().collect();
             articles.sort_by(sort_article);
-            let mut dir_items: Vec<&Metadata> = entry
+            let articles = articles; // ソート済み
+
+            // generate feed using `articles`(行儀が悪い)
+            {
+                debug!("generating feed");
+                let offset: chrono::FixedOffset = chrono::FixedOffset::east(60 * 60 * 9);
+                let channel = FeedBuilder::default()
+                    .title(format!("articles - {}", s.blog_name))
+                    .lang(Some("ja".to_string()))
+                    .links(vec![
+                        LinkBuilder::default()
+                            .href(&s.blog_url)
+                            .mime_type(Some("text/html".to_string()))
+                            .build(),
+                        LinkBuilder::default()
+                            .href(format!("{}/feed.atom", s.blog_url))
+                            .mime_type(Some("application/atom+xml".to_string()))
+                            .build(),
+                    ])
+                    .id(&s.blog_url) // RFC3987 IRI: 各ページのURLでいいんじゃないか
+                    .updated(Local::now().with_timezone(&offset))
+                    .entries(Vec::from_iter(articles.iter().map(|art| {
+                        let uri = format!("{}/{}", s.blog_url, art.path.to_string_lossy());
+
+                        EntryBuilder::default()
+                            .title(&*art.title)
+                            .link(
+                                LinkBuilder::default()
+                                    .href(&uri)
+                                    .mime_type(Some("text/html".to_string()))
+                                    .build(),
+                            )
+                            .id(&uri)
+                            .updated(
+                                chrono::DateTime::<Local>::from(
+                                    art.file_meta.modified().unwrap_or(SystemTime::UNIX_EPOCH),
+                                )
+                                .with_timezone(&offset),
+                            )
+                            .build()
+                    })))
+                    .build();
+
+                let feed_fd = OpenOptions::new()
+                    .create(true)
+                    .write(true)
+                    .open(s.out_dir.join("feed.atom"))?;
+                let writer = BufWriter::new(feed_fd);
+                channel.write_to(writer)?;
+            }
+
+            let mut dir_items: Vec<&ArticleMetadata> = entry
                 .iter()
                 .map(|e| match e {
                     Either::Left(idx) => articles[*idx],
@@ -198,7 +258,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 })
                 .collect();
             dir_items.sort_by(sort_article);
-            let mut articles: Vec<&Metadata> = articles.into_iter().take(10).collect();
+            let mut articles: Vec<&ArticleMetadata> = articles.into_iter().take(10).collect();
             // 先頭10件が最新
             articles.append(&mut dir_items);
 
@@ -218,7 +278,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 .context("while generating index.html")?;
         } else {
             // ordering by date(descending). if both are directory, compare by directory name.
-            let mut articles: Vec<&Metadata> = entry
+            let mut articles: Vec<&ArticleMetadata> = entry
                 .iter()
                 .map(|e| match e {
                     Either::Left(idx) => &articles[*idx],
@@ -252,7 +312,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         out_abs_file_path.set_extension("html");
 
         // ordering by date(descending). if both are directory, compare by directory name.
-        let mut articles: Vec<&Metadata> = article_indices
+        let mut articles: Vec<&ArticleMetadata> = article_indices
             .into_iter()
             .map(|idx| &articles[idx])
             .collect();
