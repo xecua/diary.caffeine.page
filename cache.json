@@ -13,6 +13,13 @@
     "type": "video.tv_show",
     "url": "https://abema.tv/channels/abema-anime/slots/AhkmYMa3EoW4vB"
   },
+  "https://abema.tv/channels/abema-anime/slots/CHAyxuVmRwyACX": {
+    "description": "平穏な日々――その裏には秘密がある\n犯罪を未然に防ぐ秘密組織――「DA（Direct Attack）」。\nそのエ… アニメの動画を無料で見るならABEMA！今期アニメ(最新作)の見逃し配信から懐かしの名作まで充実なラインナップ！ここでしか見られないオリジナル声優番組も今すぐ楽しめる！",
+    "thumb_url": "https://hayabusa.io/abema/programs/26-171_s1_p12/thumb001.w800.v1662977357.jpg",
+    "title": "リコリス・リコイル #12【地上波同時・独占先行】 | 新しい未来のテレビ | ABEMA",
+    "type": "video.tv_show",
+    "url": "https://abema.tv/channels/abema-anime/slots/CHAyxuVmRwyACX"
+  },
   "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=24780&partId=24780008": {
     "description": "５人目のメンバー・理瀬を仲間に加え、５人体勢となったRISE。本戦を勝ち上がり、陽和たちにとっては２度目、雪乃と理瀬にとってははじめのイベントステージにも参加、新曲を披露し、好評を得る。そんな中、May-Beeの番組「Smash!May-Bee」への出演で、千葉の海へと出かけることになるRISE一同。スマイル・LINK@Doll・BanSheeたちも一緒に、番組企画でのビーチスポーツに挑戦する！",
     "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/24/78/0/0/08/24780008_1_d2.jpg?1660111318330",
@@ -68,6 +75,13 @@
     "title": "Extreme Hearts S×S×S #10ex RISE×SnowWolf",
     "type": "article",
     "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25606&partId=25606016"
+  },
+  "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25606&partId=25606017": {
+    "description": "神奈川大会決勝戦への準備の傍ら、ファイナルイベントのステージにむけて楽曲作成にも打ち込んでいた陽和。ついに完成したその楽曲を、陽和は一同に披露する。アニメ「Extreme Hearts」＃11から少し前を振り返り、現在に繋がるエピソードを描くサイドストーリー。",
+    "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/60/6/0/17/25606017_1_d2.jpg?1656468672753",
+    "title": "Extreme Hearts S×S×S #11ex ファイナルステージ×全力Challenger",
+    "type": "article",
+    "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25606&partId=25606017"
   },
   "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25620&partId=25620008": {
     "description": "リコリコが深刻な赤字経営と知ったたきなは、自ら経理担当に名乗り出る。やたら弾を無駄撃ちする千束の制止や、店のメンバーのフォローまで完璧にこなすたきな。さらに新メニューまで考案するが、そのメニューはなんとも形容しがたい形をしていて！？",
@@ -131,6 +145,13 @@
     "title": "SKKの辞書サーバーとしてyaskkserv2を使うようにしてみた",
     "type": "article",
     "url": "https://blog.deltabox.site/post/2021/02/use_yasskkserv2_as_skk_dic_server/"
+  },
+  "https://cemetrygates1919.hatenablog.com/entry/2022/09/19/222902": {
+    "description": "はじめに みなさん、アニメ見ていますか？2022年夏のクールも数十作のアニメが放送されています。更に今期は話題作・評判作も多くあって「どんなアニメを見ればいいかわからないよ～」と思っている方も大勢いらっしゃるのではないかと思います。私も全部見られているわけではないのですが、30本強見ている中で、今期はかなり豊作クールだなぁと感じています。 こんな中で面白いアニメを見つけるのって、大変ですよね。 面白いアニメを見つけるには足で探す、すなわちアニメ全部見るのが一番かなあとも感じているのですが（アニメの合う・合わないも人それぞれですからね）とは言え時間の足りない現代において片っ端からアニメを見る、と…",
+    "thumb_url": "https://cdn-ak.f.st-hatena.com/images/fotolife/c/cemetrygates1919/20220919/20220919222550.jpg",
+    "title": "あなたにぴったりのアニメが見つかる！ オススメアニメフローチャート - 日陰の小道",
+    "type": "article",
+    "url": "https://cemetrygates1919.hatenablog.com/entry/2022/09/19/222902"
   },
   "https://gist.github.com/xecua/3c6ca9350160106e30e82a4668410f53": {
     "description": "よく使う(?)コピペをまとめたやつ. GitHub Gist: instantly share code, notes, and snippets.",
