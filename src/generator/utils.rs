@@ -102,6 +102,7 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
                         } else {
                             // nullの時returnするの忘れてたな……
                             debug!("but there seemed to be no ogp info.");
+                            ogp_replacing = false;
                             return event;
                         }
                     }
