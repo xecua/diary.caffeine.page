@@ -146,6 +146,7 @@
     "type": "article",
     "url": "https://blog.deltabox.site/post/2021/02/use_yasskkserv2_as_skk_dic_server/"
   },
+  "https://bugs.gentoo.org/862861": null,
   "https://cemetrygates1919.hatenablog.com/entry/2022/09/19/222902": {
     "description": "はじめに みなさん、アニメ見ていますか？2022年夏のクールも数十作のアニメが放送されています。更に今期は話題作・評判作も多くあって「どんなアニメを見ればいいかわからないよ～」と思っている方も大勢いらっしゃるのではないかと思います。私も全部見られているわけではないのですが、30本強見ている中で、今期はかなり豊作クールだなぁと感じています。 こんな中で面白いアニメを見つけるのって、大変ですよね。 面白いアニメを見つけるには足で探す、すなわちアニメ全部見るのが一番かなあとも感じているのですが（アニメの合う・合わないも人それぞれですからね）とは言え時間の足りない現代において片っ端からアニメを見る、と…",
     "thumb_url": "https://cdn-ak.f.st-hatena.com/images/fotolife/c/cemetrygates1919/20220919/20220919222550.jpg",
@@ -159,6 +160,20 @@
     "title": "よく使う(?)コピペをまとめたやつ",
     "type": "article",
     "url": "https://gist.github.com/xecua/3c6ca9350160106e30e82a4668410f53"
+  },
+  "https://github.com/MicrosoftDocs/live-share/issues/4646": {
+    "description": "Describe what happened: Live Share basically isn&#39;t doing anything. Although it&#39;s installed and shows in the left panel and command palette, the buttons in the left panel don&#39;t work and ...",
+    "thumb_url": "https://opengraph.githubassets.com/4d057a707dcfb2f08cb67d778c1bebc791eb9e455b3b1694844f071bcd0e78ca/MicrosoftDocs/live-share/issues/4646",
+    "title": "Live Share not doing anything on linux · Issue #4646 · MicrosoftDocs/live-share",
+    "type": "object",
+    "url": "https://github.com/MicrosoftDocs/live-share/issues/4646"
+  },
+  "https://github.com/MicrosoftDocs/live-share/issues/4693": {
+    "description": "Describe what happened: What was your system configuration? Product and Version [VS/VSCode]: 1.68 OS Version[macOS/Windows]: Gentoo Linux Live Share Extension Version:v1.0.5615 Target Platform or L...",
+    "thumb_url": "https://opengraph.githubassets.com/fcefbfbc8cbb4c89ef85170f48bcf589dcac8f5bf27bdd264266b1ffb187c6de/MicrosoftDocs/live-share/issues/4693",
+    "title": "(\"command liveshare.join not found\") · Issue #4693 · MicrosoftDocs/live-share",
+    "type": "object",
+    "url": "https://github.com/MicrosoftDocs/live-share/issues/4693"
   },
   "https://github.com/microsoft/wslg/issues/173#issuecomment-849379966": {
     "description": "Is your feature request related to a problem? Please describe. I use dvorak keyboard layout, and I can not find a way to change the wslg keyboard from qwerty to dvorak Describe the solution you&#39...",
@@ -224,6 +239,13 @@
     "title": "アニメ「風都探偵」第5話 最悪のｍ／密告者｜仮面ライダーWEB【公式】｜東映",
     "type": "website",
     "url": "https://www.kamen-rider-official.com/fuuto/episode05"
+  },
+  "https://www.kamen-rider-official.com/fuuto/episode06/": {
+    "description": "メガネウラ・ドーパントは、Ｗ ファングジョーカーの前に敗れ去った。事件は無事解決。ときめとフィリップのわだかまりも解消され、鳴海探偵事務所には穏やかな空気が流れる。一方、警察病院に搬送された犯人の傍には、「オーロラ」のガイアメモリを持つ男の姿があった。",
+    "thumb_url": "https://www.kamen-rider-official.com/static/images/fuuto/episode/episode06/ogimage.png",
+    "title": "アニメ「風都探偵」第6話 最悪のｍ／白い牙｜仮面ライダーWEB【公式】｜東映",
+    "type": "website",
+    "url": "https://www.kamen-rider-official.com/fuuto/episode06"
   },
   "https://www.kamen-rider-official.com/geats/1/": {
     "description": "令和ライダー第４作は… 多数の仮面ライダーたちが生き残りゲームに！? 出自も目的も不明な謎の敵ジャマトの脅威から、街の平和を守るためのゲーム＝デザイアグランプリ。ゲームの参加者たちは各々が仮面ライダーに変身し、敵を倒したり、人々を救ったりすることで得られるスコアを競い合いながら、勝ち残ることを目指します。",
