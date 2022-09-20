@@ -55,36 +55,35 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
             Event::Start(Tag::Link(LinkType::Autolink, ref url, _)) => {
                 // fetch OGP info
                 {
-                    ogp_replacing = true;
-
                     debug!("Getting cache of {url}...");
                     let cache = s.opengraph_cache.lock().unwrap();
                     if let Some(c) = cache.get(&url.to_string()) {
                         debug!("done.");
                         if *c != Value::Null {
+                            let mut will_render_card = true;
                             let mut og = Opengraph::empty();
                             if let Some(Value::String(og_type)) = c.get("type") {
                                 og.og_type = og_type.clone();
                             } else {
-                                ogp_replacing = false;
+                                will_render_card = false;
                                 warn!("Invalid cache (type does not exist): {}", c);
                             }
                             if let Some(Value::String(og_title)) = c.get("title") {
                                 og.properties.insert("title".to_string(), og_title.clone());
                             } else {
-                                ogp_replacing = false;
+                                will_render_card = false;
                                 warn!("Invalid cache (title does not exist): {}", c);
                             }
                             if let Some(Value::String(og_url)) = c.get("url") {
                                 og.properties.insert("url".to_string(), og_url.clone());
                             } else {
-                                ogp_replacing = false;
+                                will_render_card = false;
                                 warn!("Invalid cache (url does not exist): {}", c);
                             }
                             if let Some(Value::String(og_thumb_url)) = c.get("thumb_url") {
                                 og.images = vec![OpengraphObject::new(og_thumb_url.clone())];
                             } else {
-                                ogp_replacing = false;
+                                will_render_card = false;
                                 warn!(
                                     "Invalid cache (thumbnail url(thumb_url) does not exist): {}",
                                     c
@@ -95,14 +94,13 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
                                     .insert("description".to_string(), description.clone());
                             }
 
-                            if ogp_replacing {
-                                // あんまり行儀がよくない
+                            if will_render_card {
+                                ogp_replacing = true;
                                 return Event::Html(render_card(&og).into());
                             }
                         } else {
                             // nullの時returnするの忘れてたな……
                             debug!("but there seemed to be no ogp info.");
-                            ogp_replacing = false;
                             return event;
                         }
                     }
