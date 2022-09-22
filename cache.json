@@ -189,6 +189,13 @@
     "type": "object",
     "url": "https://github.com/microsoft/wslg/issues/27"
   },
+  "https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/HashMap.java#L573": {
+    "description": "JDK main-line development https://openjdk.org/projects/jdk - jdk/HashMap.java at master · openjdk/jdk",
+    "thumb_url": "https://opengraph.githubassets.com/5b7ef68fb29dd4a1d9bc4a93659e7ba7a0bf9b414904007594477f0d0abfd96b/openjdk/jdk",
+    "title": "jdk/HashMap.java at master · openjdk/jdk",
+    "type": "object",
+    "url": "https://github.com/openjdk/jdk"
+  },
   "https://lycoris-recoil.com/story/?id=ep11": {
     "description": "オリジナルTVアニメーション「リコリス・リコイル」2022年7月放送開始！",
     "thumb_url": "https://lycoris-recoil.com/ogp3.png",
@@ -330,6 +337,20 @@
     "title": "仮面ライダーエグゼイド　第39話[公式]",
     "type": "video.other",
     "url": "https://www.youtube.com/watch?v=Lul6NISKW_w"
+  },
+  "https://www.youtube.com/watch?v=OeaCuhsvJmE": {
+    "description": "仮面ライダー龍騎　第10話　ナイトの危機ゾルダとの戦いで傷ついた蓮。さらに北岡は弁護士としての立場を利用して、真司を罠に陥れようとする。蓮たちは北岡を解任しようとするのだが……。一方、吾郎だけに心を開く少女・ゆかり。その口から、恐るべき真相を聞いた吾郎は……。戦わなければ生き残れない！仮面ライダーシリーズ史上空前...",
+    "thumb_url": "https://i.ytimg.com/vi/OeaCuhsvJmE/maxresdefault.jpg",
+    "title": "仮面ライダー龍騎　第10話[公式]",
+    "type": "video.other",
+    "url": "https://www.youtube.com/watch?v=OeaCuhsvJmE"
+  },
+  "https://www.youtube.com/watch?v=XHngl-NNM0w": {
+    "description": "仮面ライダー龍騎　第09話　真司が逮捕？！OREジャーナルを支える天才システム担当、島田奈々子が誘拐された。身代金を運ぶように指示された真司は、山奥のあばら家を訪ねる。犯人らしき男に襲われ、必死に抵抗するところへ窓ガラスからモンスターが現われ……。戦わなければ生き残れない！仮面ライダーシリーズ史上空前のバトルロワ...",
+    "thumb_url": "https://i.ytimg.com/vi/XHngl-NNM0w/maxresdefault.jpg",
+    "title": "仮面ライダー龍騎　第09話[公式]",
+    "type": "video.other",
+    "url": "https://www.youtube.com/watch?v=XHngl-NNM0w"
   },
   "https://www.youtube.com/watch?v=bsJ0Fj2qE3M": {
     "description": "仮面ライダーエグゼイド 第38話「涙のperiod」瀕死の重傷を負って聖都大学附属病院に運び込まれた大我（松本享恭）。緊急手術が必要となり、天才外科医・飛彩（瀬戸利樹）が執刀することになる。しかし、正宗（貴水博之）は飛彩に大我の手術を許可するかわりに、わざと失敗し大我の命を奪えと命令する。クロノスは永夢（飯島寛騎...",
