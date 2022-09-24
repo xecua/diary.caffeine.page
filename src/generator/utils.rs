@@ -9,7 +9,7 @@ use crate::state::State;
 
 use super::data::ArticleMetadata;
 
-pub(super) fn render_card(og: &Opengraph) -> String {
+pub(super) fn render_card(href: &str, og: &Opengraph) -> String {
     // TODO: change element by og_type
     format!(
         concat!(
@@ -26,7 +26,7 @@ pub(super) fn render_card(og: &Opengraph) -> String {
             "  </span>",
             "</a>",
         ),
-        og.properties.get("url").unwrap(),
+        href,
         og.og_type,
         og.properties.get("title").unwrap(),
         og.properties.get("description").unwrap_or(&" ".to_string()),
@@ -96,7 +96,7 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
 
                             if will_render_card {
                                 ogp_replacing = true;
-                                return Event::Html(render_card(&og).into());
+                                return Event::Html(render_card(url, &og).into());
                             }
                         } else {
                             // nullの時returnするの忘れてたな……
@@ -149,7 +149,7 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
                             );
                         }
                         ogp_replacing = true;
-                        return Event::Html(render_card(&og).into());
+                        return Event::Html(render_card(url, &og).into());
                     }
                 }
                 // no need to caching (because there is no ogp info, nor the webpage did not exist.)
