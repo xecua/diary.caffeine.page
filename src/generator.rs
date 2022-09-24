@@ -1,6 +1,6 @@
 use std::{
     collections::{HashMap, VecDeque},
-    fs::OpenOptions,
+    fs::{Metadata as FileMetadata, OpenOptions},
     path::PathBuf,
 };
 
@@ -13,7 +13,7 @@ use log::debug;
 use pulldown_cmark::{html, Options, Parser};
 
 use self::{
-    data::{ArticlePageData, ListPageData, Metadata},
+    data::{ArticleMetadata, ArticlePageData, ListPageData},
     utils::{gen_parser_event_iterator, sort_article},
 };
 use crate::state::State;
@@ -21,19 +21,23 @@ use crate::state::State;
 mod data;
 mod utils;
 
-fn preprocess_article(file_path: &PathBuf) -> anyhow::Result<Metadata> {
+fn preprocess_article(
+    file_path: &PathBuf,
+    file_meta: FileMetadata,
+) -> anyhow::Result<ArticleMetadata> {
     let s = State::instance();
     let path = s.article_dir.join(file_path);
 
     let mut file_path_html: PathBuf = file_path.clone();
     file_path_html.set_extension("html");
 
-    let mut metadata = Metadata {
+    let mut metadata = ArticleMetadata {
         title: "".to_string(),
         tags: vec![],
         date: None,
         path: file_path_html,
         body: "".to_string(),
+        file_meta,
     };
 
     let content = std::fs::read_to_string(&path)?;
@@ -81,7 +85,7 @@ fn preprocess_article(file_path: &PathBuf) -> anyhow::Result<Metadata> {
     Ok(metadata)
 }
 
-fn generate_article(metadata: &Metadata) -> anyhow::Result<()> {
+fn generate_article(metadata: &ArticleMetadata) -> anyhow::Result<()> {
     let s = State::instance();
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
@@ -133,7 +137,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
 
     // subdirectory data
     // left: index of `articles` / right: directory(pseudo entry data)
-    let mut directories: HashMap<PathBuf, Vec<Either<usize, Metadata>>> = HashMap::new();
+    let mut directories: HashMap<PathBuf, Vec<Either<usize, ArticleMetadata>>> = HashMap::new();
     let mut tags: HashMap<String, Vec<usize>> = HashMap::new();
 
     // traversing `article_dir`
@@ -153,16 +157,17 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 q.push_back(directory_path.clone());
 
                 let directory_name = entry.file_name().to_string_lossy().to_string();
-                (*entries_in_current_path).push(Either::Right(Metadata {
+                (*entries_in_current_path).push(Either::Right(ArticleMetadata {
                     title: directory_name,
                     tags: vec![],
                     date: None,
                     path: directory_path,
                     body: "".to_string(),
+                    file_meta: meta,
                 }));
             } else if meta.is_file() {
-                let article_meta =
-                    preprocess_article(&path.join(entry.file_name())).with_context(|| {
+                let article_meta = preprocess_article(&path.join(entry.file_name()), meta)
+                    .with_context(|| {
                         format!("while preprocessing {:?}", &path.join(entry.file_name()))
                     })?;
                 for tag in article_meta.tags.iter() {
@@ -187,8 +192,8 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         let out_rel_dir_name = out_rel_dir_path.to_string_lossy().to_string();
 
         if out_rel_dir_name.is_empty() {
-            // ordering by date(descending). if both are directory, compare by directory name.
-            let mut articles: Vec<&Metadata> = articles.iter().collect();
+            // root index.html
+            let mut articles: Vec<&ArticleMetadata> = articles.iter().collect();
             articles.sort_by(sort_article);
 
             let index_data = ListPageData {
@@ -207,7 +212,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 .context("while generating index.html")?;
         } else {
             // ordering by date(descending). if both are directory, compare by directory name.
-            let mut articles: Vec<&Metadata> = entry
+            let mut articles: Vec<&ArticleMetadata> = entry
                 .iter()
                 .map(|e| match e {
                     Either::Left(idx) => &articles[*idx],
@@ -241,7 +246,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         out_abs_file_path.set_extension("html");
 
         // ordering by date(descending). if both are directory, compare by directory name.
-        let mut articles: Vec<&Metadata> = article_indices
+        let mut articles: Vec<&ArticleMetadata> = article_indices
             .into_iter()
             .map(|idx| &articles[idx])
             .collect();
