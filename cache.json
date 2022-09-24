@@ -6,5 +6,12 @@
     "title": "GitHub: Where the world builds software",
     "type": "object",
     "url": "https://github.com/"
+  },
+  "https://github.com/git/git/blob/master/commit.c#L1": {
+    "description": "Git Source Code Mirror - This is a publish-only repository but pull requests can be turned into patches to the mailing list via GitGitGadget (https://gitgitgadget.github.io/). Please follow Documen...",
+    "thumb_url": "https://opengraph.githubassets.com/2806d9b3d2c96b954fbfbb7778ca962b2c83e62f9ce039e14c882077d2a3f417/git/git",
+    "title": "git/commit.c at master · git/git",
+    "type": "object",
+    "url": "https://github.com/git/git"
   }
 }
