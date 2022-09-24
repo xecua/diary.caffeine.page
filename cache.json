@@ -366,6 +366,13 @@
     "type": "video.other",
     "url": "https://www.youtube.com/watch?v=bsJ0Fj2qE3M"
   },
+  "https://www.youtube.com/watch?v=ehSNL0h2mg0": {
+    "description": "仮面ライダーエグゼイド 第45話「終わりなきGAME」ポッピーピポパポ（松田るか）やパラド（甲斐翔真）の犠牲により、パンデミックを阻止することができ、ゲムデウスは攻略された。しかし、パラドが消滅したことにより、永夢（飯島寛騎）はエグゼイドへの変身能力を失ってしまう。勝ち誇る正宗（貴水博之）はクロノスに変身。戦いを...",
+    "thumb_url": "https://i.ytimg.com/vi/ehSNL0h2mg0/hqdefault.jpg",
+    "title": "仮面ライダーエグゼイド　第45話[公式]",
+    "type": "video.other",
+    "url": "https://www.youtube.com/watch?v=ehSNL0h2mg0"
+  },
   "https://www.youtube.com/watch?v=i-ivcHbFXfY": {
     "description": "仮面ライダー龍騎　第06話　謎のライダー蓮が追っていたシザースの手がかりは断ち切れた。そして優衣に忍びよるシザースの影。一方、仮面ライダーは互いに戦わなければならないという神崎士郎のつくり出した過酷なルール。そのことを、一度も真剣に取り合ったことのなかった真司だが……。戦わなければ生き残れない！仮面ライダーシリー...",
     "thumb_url": "https://i.ytimg.com/vi/i-ivcHbFXfY/hqdefault.jpg",
@@ -407,6 +414,13 @@
     "title": "仮面ライダー龍騎　第05話[公式]",
     "type": "video.other",
     "url": "https://www.youtube.com/watch?v=wzR2MjL7vps"
+  },
+  "https://xecua.hatenablog.com/entry/2021/03/11/232134": {
+    "description": "一応ブログとしてまとめておく 環境 Gentoo Linux (Kernel 5.10.22) init: systemd (247.2-r4) OpenRCの方は多分関係ない DM: LightDM (1.30.0-r2) .xprofileを読むことに関係する(多分それだけ) DE: i3-gaps (4.18.2) たぶん結果的にはあんまり関係ない 結論 .xprofileでdbusを起動するな USEフラグuser-sessionsを有効にしろ どっちかだけだとダメだったので多分両方 以下は曖昧な記憶を辿って(状況再現をサボりつつ)書いただけなので参考にならんかも 文章としても崩れてる…",
+    "thumb_url": "https://ogimage.blog.st-hatena.com/26006613581217952/26006613701440360/1629365698",
+    "title": "systemdで起動しているGentooでfcitxを使う - かふぇいん中毒",
+    "type": "article",
+    "url": "https://xecua.hatenablog.com/entry/2021/03/11/232134"
   },
   "https://xecua.hatenablog.com/entry/2022/09/12/142031": {
     "description": "ちゃんとログ読もうね〜という話 ここ数日dev-util/cmake::gentooのアプデ(3.23.3)が降ってきているにも関わらずビルドがコケてアプデできていませんでした。 自分自身は別に(間接的にしか)使ってないんですが、あまり気分がいい状態ではないのでなんとな〜く調査しつつもめんどくさそうだな〜と思って手を出さずにいました。 ちなみに同じくGentooを使っている知人は普通に入っているらしい(そっちはsystemdがビルドできないらしい。私は普通にできてますが)。 んで今日やるか〜となったのでそのログ。 調査 まずはログを読む。 実はこの画像に答えが書いてある jsoncppのシンボ…",
