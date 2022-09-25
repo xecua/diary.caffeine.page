@@ -20,6 +20,7 @@
     "type": "video.tv_show",
     "url": "https://abema.tv/channels/abema-anime/slots/CHAyxuVmRwyACX"
   },
+  "https://animestore.docomo.ne.jp/animestore/cd_pc?partId=24780012": null,
   "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=24780&partId=24780008": {
     "description": "５人目のメンバー・理瀬を仲間に加え、５人体勢となったRISE。本戦を勝ち上がり、陽和たちにとっては２度目、雪乃と理瀬にとってははじめのイベントステージにも参加、新曲を披露し、好評を得る。そんな中、May-Beeの番組「Smash!May-Bee」への出演で、千葉の海へと出かけることになるRISE一同。スマイル・LINK@Doll・BanSheeたちも一緒に、番組企画でのビーチスポーツに挑戦する！",
     "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/24/78/0/0/08/24780008_1_d2.jpg?1660111318330",
@@ -83,6 +84,13 @@
     "type": "article",
     "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25606&partId=25606017"
   },
+  "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25606&partId=25606018": {
+    "description": "神奈川大会優勝を果たし、忙しく活動するRISE＆SnowWolf一同。過去と未来を思いながら、一同は語らう。アニメ「Extreme Hearts」最終回＃12の後、未来を語るエピソードを描くサイドストーリー。",
+    "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/60/6/0/18/25606018_1_d2.jpg?1656468703794",
+    "title": "Extreme Hearts S×S×S #12ex RISE×これからの未来",
+    "type": "article",
+    "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25606&partId=25606018"
+  },
   "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25620&partId=25620008": {
     "description": "リコリコが深刻な赤字経営と知ったたきなは、自ら経理担当に名乗り出る。やたら弾を無駄撃ちする千束の制止や、店のメンバーのフォローまで完璧にこなすたきな。さらに新メニューまで考案するが、そのメニューはなんとも形容しがたい形をしていて！？",
     "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/62/0/0/08/25620008_1_d2.jpg?1661140979408",
@@ -139,6 +147,13 @@
     "type": "article",
     "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25692&partId=25692011"
   },
+  "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25692&partId=25692012": {
+    "description": "10年間、血を吸わなかった吸血鬼が餡子によって殺された。餡子に「君は吸血鬼を何も知らない」と言われ、悩み始めたコウ。真昼からは「吸血鬼になって何がしたいんだ？」と問われ、悩みは深まるばかりで……。",
+    "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/69/2/0/12/25692012_1_d2.jpg?1663668465866",
+    "title": "よふかしのうた 第12夜 今日ウチ親いないんだ",
+    "type": "article",
+    "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25692&partId=25692012"
+  },
   "https://blog.deltabox.site/post/2021/02/use_yasskkserv2_as_skk_dic_server/": {
     "description": "久々に４連休となったので、たまには頻度高めにブログを書いてみることにします。\n今回は、前回SKKにしたということを書きましたが、それの辞書サーバーについて書いてみようと思います。",
     "thumb_url": "https://blog.deltabox.site/img/avatar.jpg",
@@ -174,6 +189,13 @@
     "title": "(\"command liveshare.join not found\") · Issue #4693 · MicrosoftDocs/live-share",
     "type": "object",
     "url": "https://github.com/MicrosoftDocs/live-share/issues/4693"
+  },
+  "https://github.com/eth-p/bat-extras/blob/master/src/batpipe.sh#L84": {
+    "description": "Bash scripts that integrate bat with various command line tools. - bat-extras/batpipe.sh at master · eth-p/bat-extras",
+    "thumb_url": "https://opengraph.githubassets.com/08625540523b02802654bfb2e519dd4617647c539ce864163a870eeea1e578e1/eth-p/bat-extras",
+    "title": "bat-extras/batpipe.sh at master · eth-p/bat-extras",
+    "type": "object",
+    "url": "https://github.com/eth-p/bat-extras"
   },
   "https://github.com/microsoft/wslg/issues/173#issuecomment-849379966": {
     "description": "Is your feature request related to a problem? Please describe. I use dvorak keyboard layout, and I can not find a way to change the wslg keyboard from qwerty to dvorak Describe the solution you&#39...",
