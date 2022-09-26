@@ -1,29 +1,28 @@
-use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 use handlebars::{handlebars_helper, Handlebars};
+use maud::html;
 
 handlebars_helper!(breadcrumbs: |path: PathBuf| {
     let mut current_path = PathBuf::from("/");
-    let mut res = String::new();
     let mut components = path.components();
     if path.has_root() {
         components.next();
     }
-    res.push_str("<a href=\"/\">/</a> ");
-    for (i, c) in components.enumerate() {
-        current_path.push(c);
-        let _ = write!(
-            res,
-            "{}<a href=\"{}\">{}</a>",
-            if i == 0 {""} else {" / "},
-            current_path.to_string_lossy(),
-            current_path.file_stem().unwrap().to_string_lossy() // file_prefix: unstable
-        );
-    }
 
-    res
+    html! {
+        a href="/" {"/"}
+        @for (i, c) in components.enumerate() {
+            @if i != 0 {
+                "/"
+            }
+            a href=({
+                current_path.push(c);
+                current_path.to_string_lossy()
+            }) {( current_path.file_stem().unwrap().to_string_lossy() )} // file_prefix may be preferred, but unstable
+        }
+    }.into_string()
 });
 
 handlebars_helper!(slice_until: |lst: array, upper: usize| lst[..upper].to_owned());

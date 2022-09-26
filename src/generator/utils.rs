@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
 use log::{debug, warn};
+use maud::html;
 use pulldown_cmark::{Event, LinkType, Tag};
 use serde_json::{json, Value};
 use webpage::{Opengraph, OpengraphObject, Webpage, WebpageOptions};
@@ -10,29 +11,22 @@ use crate::state::State;
 use super::data::ArticleMetadata;
 
 pub(super) fn render_card(href: &str, og: &Opengraph) -> String {
-    // TODO: change element by og_type
-    format!(
-        concat!(
-            "<a class=\"og-href\" href=\"{}\">",
-            "  <span class=\"og-card og_type_{}\">",
-            "    <span class=\"og-text\">",
-            "      <span class=\"og-title\">{}</span>",
-            "      <span class=\"og-desc\">{}</span>",
-            "      <span class=\"og-url\">{}</span>",
-            "    </span>",
-            "    <span class=\"og-image-wrap\">",
-            "      <img class=\"og-image\" src=\"{}\">",
-            "    </span>",
-            "  </span>",
-            "</a>",
-        ),
-        href,
-        og.og_type,
-        og.properties.get("title").unwrap(),
-        og.properties.get("description").unwrap_or(&" ".to_string()),
-        og.properties.get("url").unwrap(),
-        og.images[0].url
-    )
+    // TODO: change element by og-type
+    html! {
+        a.og-href href=(href) {
+            span.og-card.{ "og-type-" (og.og_type) } {
+                span.og-text {
+                    span.og-title { (og.properties.get("title").unwrap()) }
+                    span.og-desc { (og.properties.get("description").unwrap_or(&" ".to_string())) }
+                    span.og-url { (og.properties.get("url").unwrap()) }
+                    }
+                span.og-image-wrap {
+                    img.og-image src=(og.images[0].url);
+                }
+            }
+        }
+    }
+    .into()
 }
 
 pub(super) fn sort_article(a: &&ArticleMetadata, b: &&ArticleMetadata) -> Ordering {
