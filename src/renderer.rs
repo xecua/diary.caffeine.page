@@ -12,10 +12,10 @@ handlebars_helper!(breadcrumbs: |path: PathBuf| {
     }
 
     html! {
-        a href="/" {"/"}
+        a href="/" {"/ "}
         @for (i, c) in components.enumerate() {
             @if i != 0 {
-                "/"
+                " / "
             }
             a href=({
                 current_path.push(c);
