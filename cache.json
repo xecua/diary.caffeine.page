@@ -119,6 +119,13 @@
     "type": "article",
     "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690010"
   },
+  "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690012": {
+    "description": "ついにアトレとエキュートは、ゆりねの居場所を突き止めた。ヴァンパイア族だと名乗る２人は、ゆりねを自分たちの仲間にすべく、あの手この手で勧誘する。ゆりねがヴァンパイア族になり不死となったら、魔界に戻ることができなくなってしまう。そう思って焦った邪神ちゃんは…。そして、ある日の邪神ちゃんは、「魔貴族の誇り」を取り戻すことを決意する。本気の筋トレと、食事制限に励む邪神ちゃんを待ち受けていた事態とは…。",
+    "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/69/0/0/12/25690012_1_d2.jpg?1663320668194",
+    "title": "邪神ちゃんドロップキックX 第12話 ドロップキックは永遠に",
+    "type": "article",
+    "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690012"
+  },
   "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25692&partId=25692008": {
     "description": "ナズナ以外の吸血鬼、セリ、ニコ、ミドリ、ハツカ、カブラと知り合ったコウ。そして、初めて血を吸われてから1年以内に吸血鬼にならなかった人間は、一生吸血鬼になれないということを知り……。",
     "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/69/2/0/08/25692008_1_d2.jpg?1661317206560",
@@ -197,6 +204,13 @@
     "type": "object",
     "url": "https://github.com/eth-p/bat-extras"
   },
+  "https://github.com/eth-p/bat-extras/issues/82": {
+    "description": "When I build scripts with --compress option and run batpipe, its output becomes # batpipe, a bat-based preprocessor for less and bat. # Version: 2022.07.27 # Homepage: https://github.com/eth-p/bat-...",
+    "thumb_url": "https://opengraph.githubassets.com/704cc0da4f08ef96abb718ce8bdb506a6140c3c65d4d46288c2417fdb5c633f0/eth-p/bat-extras/issues/82",
+    "title": "batpipe: `./build.sh --compress` causes wrong `LESSOPEN` · Issue #82 · eth-p/bat-extras",
+    "type": "object",
+    "url": "https://github.com/eth-p/bat-extras/issues/82"
+  },
   "https://github.com/microsoft/wslg/issues/173#issuecomment-849379966": {
     "description": "Is your feature request related to a problem? Please describe. I use dvorak keyboard layout, and I can not find a way to change the wslg keyboard from qwerty to dvorak Describe the solution you&#39...",
     "thumb_url": "https://opengraph.githubassets.com/30d46d5b7e5c61b527cc52359086b975772a1ac09d7ba6251a156f7d355560f2/microsoft/wslg/issues/173",
@@ -219,6 +233,13 @@
     "url": "https://github.com/openjdk/jdk"
   },
   "https://lycoris-recoil.com/story/?id=ep11": {
+    "description": "オリジナルTVアニメーション「リコリス・リコイル」2022年7月放送開始！",
+    "thumb_url": "https://lycoris-recoil.com/ogp3.png",
+    "title": "オリジナルTVアニメーション「リコリス・リコイル」公式サイト",
+    "type": "website",
+    "url": "https://lycoris-recoil.com/"
+  },
+  "https://lycoris-recoil.com/story/?id=ep13": {
     "description": "オリジナルTVアニメーション「リコリス・リコイル」2022年7月放送開始！",
     "thumb_url": "https://lycoris-recoil.com/ogp3.png",
     "title": "オリジナルTVアニメーション「リコリス・リコイル」公式サイト",
