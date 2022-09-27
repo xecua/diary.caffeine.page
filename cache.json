@@ -20,6 +20,7 @@
     "type": "video.tv_show",
     "url": "https://abema.tv/channels/abema-anime/slots/CHAyxuVmRwyACX"
   },
+  "https://amzn.asia/d/8asWBV5": null,
   "https://animestore.docomo.ne.jp/animestore/cd_pc?partId=24780012": null,
   "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=24780&partId=24780008": {
     "description": "５人目のメンバー・理瀬を仲間に加え、５人体勢となったRISE。本戦を勝ち上がり、陽和たちにとっては２度目、雪乃と理瀬にとってははじめのイベントステージにも参加、新曲を披露し、好評を得る。そんな中、May-Beeの番組「Smash!May-Bee」への出演で、千葉の海へと出かけることになるRISE一同。スマイル・LINK@Doll・BanSheeたちも一緒に、番組企画でのビーチスポーツに挑戦する！",
@@ -97,6 +98,13 @@
     "title": "リコリス・リコイル 第8話 Another day, another dollar",
     "type": "article",
     "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25620&partId=25620008"
+  },
+  "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25649&partId=25649006": {
+    "description": "学園から出て下界に〈おつかい〉へ行くことになったアルスノトリアたち。当初予定していた精霊の営むお店だけでは品物を揃えることができずに困ってしまうが、思わぬハプニングから手に入れる方法を思いつき…！？",
+    "thumb_url": "https://cs1.animestore.docomo.ne.jp/anime_kv/img/25/64/9/0/06/25649006_1_d2.jpg?1655868803226",
+    "title": "『咲う アルスノトリア すんっ！』 第6話 し―",
+    "type": "article",
+    "url": "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25649&partId=25649006"
   },
   "https://animestore.docomo.ne.jp/animestore/ci_pc?workId=25690&partId=25690008": {
     "description": "ボロボロになった邪神ちゃんは、樹齢300年超えのあこう群落に、力強さを感じていた。通りすがりの梶原さんに言われ、木を逆さまに見てみると、そこにはなんとハートマークが！木を通じて、大地からの深い愛を感じ、「南向きに生きよう」と心打たれた邪神ちゃんだったが…？時を同じくして、リエールも南島原にやってきていた。古くからの知人に会いに来たというリエールに、付きそうことにした邪神ちゃんは…。",
@@ -303,6 +311,13 @@
     "title": "アニメ「風都探偵」第7話 閉ざされたｋ／名コンビ遭難｜仮面ライダーWEB【公式】｜東映",
     "type": "website",
     "url": "https://www.kamen-rider-official.com/fuuto/episode07"
+  },
+  "https://www.kamen-rider-official.com/fuuto/episode08/": {
+    "description": "鏡野邸での花嫁候補殺人事件。アルコール・ドーパントに続いて現れたのは、ドライバーを付けた謎のドーパント。それは新たなる敵組織の刺客なのか。アクセル全開で駆け付けた照井の援護を受け、翔太郎とフィリップは事件の核心へと迫る。",
+    "thumb_url": "https://www.kamen-rider-official.com/static/images/fuuto/episode/episode08/ogimage.png",
+    "title": "アニメ「風都探偵」第8話 閉ざされたｋ／連鎖する悪意｜仮面ライダーWEB【公式】｜東映",
+    "type": "website",
+    "url": "https://www.kamen-rider-official.com/fuuto/episode08"
   },
   "https://www.kamen-rider-official.com/geats/1/": {
     "description": "令和ライダー第４作は… 多数の仮面ライダーたちが生き残りゲームに！? 出自も目的も不明な謎の敵ジャマトの脅威から、街の平和を守るためのゲーム＝デザイアグランプリ。ゲームの参加者たちは各々が仮面ライダーに変身し、敵を倒したり、人々を救ったりすることで得られるスコアを競い合いながら、勝ち残ることを目指します。",
