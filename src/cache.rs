@@ -26,8 +26,7 @@ pub(super) fn save_cache(cache_file_path: &Path, cache: &Map<String, Value>) -> 
         .write(true)
         .open(&cache_file_path)?;
     let writer = BufWriter::new(cache_file_fd);
-    // serde_json::to_writer_pretty(writer, cache)?;
-    zstd::stream::copy_encode(serde_json::to_vec_pretty(&cache)?.as_slice(), writer, 0)?;
+    zstd::stream::copy_encode(serde_json::to_vec(&cache)?.as_slice(), writer, 0)?;
 
     Ok(())
 }
