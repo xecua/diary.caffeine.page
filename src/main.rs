@@ -58,7 +58,7 @@ fn main() -> anyhow::Result<()> {
 
     let handlebars = renderer::generate_renderer(template_dir)?;
 
-    let cache_file_path = PathBuf::from("cache.json");
+    let cache_file_path = PathBuf::from("cache.json.zst");
     state::STATE
         .set(State {
             article_dir: article_dir.to_owned(),
