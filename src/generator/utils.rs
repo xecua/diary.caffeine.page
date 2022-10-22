@@ -48,6 +48,7 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
         match event {
             Event::Start(Tag::Link(LinkType::Autolink, ref url, _)) => {
                 // fetch OGP info
+                // 内部リンクの場合自動的に(index).htmlを付与する、とかあった方が便利そうだな
                 {
                     debug!("Getting cache of {url}...");
                     let cache = s.opengraph_cache.lock().unwrap();
