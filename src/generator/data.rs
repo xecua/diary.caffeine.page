@@ -1,5 +1,5 @@
 use serde::Serialize;
-use std::{fs::Metadata as FileMetadata, path::PathBuf};
+use std::{fs::Metadata as FileMetadata, path::PathBuf, rc::Rc};
 
 #[derive(Serialize, Debug, Clone)]
 pub(super) struct ArticleMetadata {
@@ -37,10 +37,10 @@ pub(super) struct ArticlePageData<'a> {
 }
 
 #[derive(Serialize, Debug)]
-pub(super) struct ListPageData<'a> {
+pub(super) struct ListPageData {
     pub blog_name: &'static str,
     pub title: String,
     pub relpath: PathBuf,
     pub is_page: bool,
-    pub articles: Vec<&'a ArticleMetadata>,
+    pub articles: Vec<Rc<ArticleMetadata>>,
 }

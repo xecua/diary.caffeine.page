@@ -195,16 +195,11 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         if name.is_empty() {
             // root
             // 最新の10件
-            let mut articles: Vec<&ArticleMetadata> =
-                articles.iter().take(10).map(|a| a.as_ref()).collect();
+            let mut articles: Vec<Rc<ArticleMetadata>> =
+                articles.iter().take(10).map(Rc::clone).collect();
 
             // rootに存在する記事
-            articles.append(
-                &mut entries_in_current_directory
-                    .iter()
-                    .map(|e| e.as_ref())
-                    .collect(),
-            );
+            articles.append(&mut entries_in_current_directory);
 
             let index_data = ListPageData {
                 blog_name: &s.blog_name,
@@ -228,10 +223,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 title: name,
                 relpath: directory_relpath,
                 is_page: false,
-                articles: entries_in_current_directory
-                    .iter()
-                    .map(|e| e.as_ref())
-                    .collect(),
+                articles: entries_in_current_directory.iter().map(Rc::clone).collect(),
             };
 
             let out_index_fd = OpenOptions::new()
@@ -259,7 +251,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             title: format!("タグ: {}", tag),
             relpath: tag_relpath,
             is_page: true,
-            articles: tag_articles.iter().map(|a| a.as_ref()).collect(),
+            articles: tag_articles.iter().map(Rc::clone).collect(),
         };
 
         let out_tag_fd = OpenOptions::new()
