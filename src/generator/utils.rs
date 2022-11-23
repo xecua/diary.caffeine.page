@@ -29,10 +29,7 @@ pub(super) fn render_card(href: &str, og: &Opengraph) -> String {
     .into()
 }
 
-pub(super) fn sort_article<T: Borrow<ArticleMetadata>, U: Borrow<ArticleMetadata>>(
-    a: &T,
-    b: &U,
-) -> Ordering {
+pub(super) fn sort_article<T: Borrow<ArticleMetadata>>(a: &T, b: &T) -> Ordering {
     match (a.borrow().date, b.borrow().date) {
         (Some(ref a_date), Some(ref b_date)) => b_date.cmp(a_date),
         (Some(_), None) => std::cmp::Ordering::Greater,

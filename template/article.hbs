@@ -13,6 +13,10 @@
             <time style="display: block; text-align: right" datetime="{{meta.date}}">
                 {{ meta.date }}
             </time>
+            <nav style="display: flex; justify-content: space-between; margin: auto 5%">
+                {{#if prev_meta}}<a href="/{{ with_extension prev_meta.relpath "html" }}">← 前の記事</a>{{/if}}
+                {{#if next_meta}}<a href="/{{ with_extension next_meta.relpath "html" }}">次の記事 →</a>{{/if}}
+            </nav>
             <section>
                 {{{ body }}}
             </section>

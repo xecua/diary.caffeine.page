@@ -82,7 +82,11 @@ fn preprocess_article(
     Ok(metadata)
 }
 
-fn generate_article(metadata: &ArticleMetadata) -> anyhow::Result<()> {
+fn generate_article(
+    metadata: &ArticleMetadata,
+    prev_meta: Option<&ArticleMetadata>,
+    next_meta: Option<&ArticleMetadata>,
+) -> anyhow::Result<()> {
     let s = State::instance();
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
@@ -106,6 +110,8 @@ fn generate_article(metadata: &ArticleMetadata) -> anyhow::Result<()> {
         blog_name: &s.blog_name,
         body: body_html,
         meta: metadata,
+        prev_meta,
+        next_meta,
     };
     s.handlebars
         .render_to_write("article", &data, out_abs_fd)
@@ -180,8 +186,12 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     articles.sort_by(sort_article);
 
     debug!("generating articles");
-    for article in articles.iter() {
-        generate_article(article)?;
+    for (i, article) in articles.iter().enumerate() {
+        generate_article(
+            article,
+            articles.get(i + 1).map(|a| a.as_ref()),
+            articles.get(i - 1).map(|a| a.as_ref()),
+        )?;
     }
 
     debug!("generating feed");
@@ -253,16 +263,11 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         if name.is_empty() {
             // root
             // 最新の10件
-            let mut articles: Vec<&ArticleMetadata> =
-                articles.iter().take(10).map(|a| a.as_ref()).collect();
+            let mut articles: Vec<Rc<ArticleMetadata>> =
+                articles.iter().take(10).map(|a| Rc::clone(a)).collect();
 
             // 先頭10件が最新
-            articles.append(
-                &mut entries_in_current_directory
-                    .iter()
-                    .map(|e| e.as_ref())
-                    .collect(),
-            );
+            articles.append(&mut entries_in_current_directory);
 
             let index_data = ListPageData {
                 blog_name: &s.blog_name,
@@ -288,7 +293,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 is_page: false,
                 articles: entries_in_current_directory
                     .iter()
-                    .map(|e| e.as_ref())
+                    .map(|e| Rc::clone(e))
                     .collect(),
             };
 
@@ -317,7 +322,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             title: format!("タグ: {}", tag),
             relpath: tag_relpath,
             is_page: true,
-            articles: tag_articles.iter().map(|a| a.as_ref()).collect(),
+            articles: tag_articles.iter().map(|a| Rc::clone(a)).collect(),
         };
 
         let out_tag_fd = OpenOptions::new()
