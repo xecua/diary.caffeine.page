@@ -1,8 +1,8 @@
 {{#> layout }}
     {{#*inline "main"}}
         <ul>
-        {{#each (slice_since articles 10)}}
-            <li><a href="/{{path}}">{{title}}{{#if date}} ({{date}}){{/if}}</a></li>
+        {{#each articles}}
+            <li><a href="/{{ with_extension relpath "html" }}">{{title}}{{#if date}} ({{date}}){{/if}}</a></li>
         {{/each}}
         </ul>
         <div style="border-top: solid black 1Q; padding-top: 1rem">最新の10件</div>
