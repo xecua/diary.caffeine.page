@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use std::{borrow::Borrow, cmp::Ordering};
 
 use log::{debug, warn};
 use maud::html;
@@ -29,12 +29,15 @@ pub(super) fn render_card(href: &str, og: &Opengraph) -> String {
     .into()
 }
 
-pub(super) fn sort_article(a: &&ArticleMetadata, b: &&ArticleMetadata) -> Ordering {
-    match (a.date, b.date) {
+pub(super) fn sort_article<T: Borrow<ArticleMetadata>, U: Borrow<ArticleMetadata>>(
+    a: &T,
+    b: &U,
+) -> Ordering {
+    match (a.borrow().date, b.borrow().date) {
         (Some(ref a_date), Some(ref b_date)) => b_date.cmp(a_date),
         (Some(_), None) => std::cmp::Ordering::Greater,
         (None, Some(_)) => std::cmp::Ordering::Less,
-        (None, None) => b.title.cmp(&a.title),
+        (None, None) => b.borrow().title.cmp(&a.borrow().title),
     }
 }
 

@@ -1,13 +1,13 @@
 use std::{
     collections::{HashMap, VecDeque},
-    fs::{Metadata as FileMetadata, OpenOptions},
+    fs::{create_dir_all, Metadata as FileMetadata, OpenOptions},
     path::PathBuf,
+    rc::Rc,
 };
 
 use anyhow::{bail, Context};
 
 use chrono::NaiveDate;
-use either::Either;
 use fs_extra::dir::CopyOptions;
 use log::debug;
 use pulldown_cmark::{html, Options, Parser};
@@ -94,16 +94,15 @@ fn generate_article(metadata: &ArticleMetadata) -> anyhow::Result<()> {
     let parser = Parser::new_ext(&metadata.body, options).map(gen_parser_event_iterator());
 
     // out
-    let mut out_abs_path = s.out_dir.join(&metadata.path);
-    out_abs_path.set_extension("html");
+    let mut out_abspath = s.out_dir.join(&metadata.path);
+    out_abspath.set_extension("html");
 
-    if out_abs_path.parent().map_or(false, |p| !p.exists()) {
-        std::fs::create_dir_all(out_abs_path.parent().unwrap())?;
-    }
+    create_dir_all(out_abspath.parent().unwrap())?;
     let out_abs_fd = OpenOptions::new()
         .write(true)
         .create(true)
-        .open(out_abs_path)?;
+        .open(out_abspath)
+        .with_context(|| format!("while opening file {:?}", metadata.path))?;
 
     let mut body_html = String::new();
     html::push_html(&mut body_html, parser);
@@ -136,49 +135,57 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     let mut articles = vec![];
 
     // subdirectory data
-    // left: index of `articles` / right: directory(pseudo entry data)
-    let mut directories: HashMap<PathBuf, Vec<Either<usize, ArticleMetadata>>> = HashMap::new();
-    let mut tags: HashMap<String, Vec<usize>> = HashMap::new();
+    let mut directory_entries: HashMap<PathBuf, Vec<Rc<ArticleMetadata>>> = HashMap::new();
+    let mut tags: HashMap<String, Vec<Rc<ArticleMetadata>>> = HashMap::new();
 
     // traversing `article_dir`
     let mut q = VecDeque::new();
-    q.push_back(PathBuf::new());
-    while let Some(path) = q.pop_front() {
-        let current_searching_directory_path = s.article_dir.join(&path);
+    q.push_back(PathBuf::new()); // article_dirからの相対パスを入れるqueue
 
-        let entries_in_current_path = directories.entry(path.clone()).or_default();
+    while let Some(current_directory_relpath) = q.pop_front() {
+        // relpathはarticle_dirからの相対パス、abspathはarticle_dirを含めたパス
+        // abspathは厳密にはabsではないかもしれない
+        let current_directory_abspath = s.article_dir.join(&current_directory_relpath);
 
-        for entry in std::fs::read_dir(current_searching_directory_path)? {
+        let entries_in_current_directory = directory_entries
+            .entry(current_directory_relpath.clone())
+            .or_default();
+
+        for entry in std::fs::read_dir(current_directory_abspath)? {
             let entry = entry?;
             let meta = entry.metadata()?;
+            let entry_relpath = current_directory_relpath.join(&entry.file_name());
 
             if meta.is_dir() {
-                let directory_path = path.join(entry.file_name());
-                q.push_back(directory_path.clone());
+                q.push_back(entry_relpath.clone());
 
-                let directory_name = entry.file_name().to_string_lossy().to_string();
-                (*entries_in_current_path).push(Either::Right(ArticleMetadata {
-                    title: directory_name,
+                (*entries_in_current_directory).push(Rc::new(ArticleMetadata {
+                    title: entry.file_name().to_string_lossy().into_owned(),
                     tags: vec![],
                     date: None,
-                    path: directory_path,
+                    path: s.article_dir.join(&entry_relpath),
                     body: "".to_string(),
                     file_meta: meta,
                 }));
             } else if meta.is_file() {
-                let article_meta = preprocess_article(&path.join(entry.file_name()), meta)
-                    .with_context(|| {
-                        format!("while preprocessing {:?}", &path.join(entry.file_name()))
-                    })?;
+                let article_meta =
+                    Rc::new(preprocess_article(&entry_relpath, meta).with_context(|| {
+                        format!(
+                            "while preprocessing {:?}",
+                            &current_directory_relpath.join(entry.file_name())
+                        )
+                    })?);
                 for tag in article_meta.tags.iter() {
                     let tag_entries = tags.entry(tag.to_string()).or_default();
-                    (*tag_entries).push(articles.len());
+                    (*tag_entries).push(Rc::clone(&article_meta));
                 }
-                (*entries_in_current_path).push(Either::Left(articles.len()));
+                (*entries_in_current_directory).push(Rc::clone(&article_meta));
                 articles.push(article_meta.clone());
             }
         }
     }
+
+    articles.sort_by(sort_article);
 
     debug!("generating articles");
     for article in articles.iter() {
@@ -186,15 +193,29 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     }
 
     debug!("generating directory-index pages");
-    for (out_rel_dir_path, entry) in directories.into_iter() {
-        let out_abs_file_path = s.out_dir.join(&out_rel_dir_path).join("index.html");
-        // index page
-        let out_rel_dir_name = out_rel_dir_path.to_string_lossy().to_string();
+    for (directory_relpath, mut entries_in_current_directory) in directory_entries.into_iter() {
+        let name = directory_relpath.to_string_lossy().to_string();
+        let out_index_abspath = s.out_dir.join(&directory_relpath).join("index.html");
+        entries_in_current_directory.sort_by(sort_article);
 
-        if out_rel_dir_name.is_empty() {
-            // root index.html
-            let mut articles: Vec<&ArticleMetadata> = articles.iter().collect();
-            articles.sort_by(sort_article);
+        create_dir_all(out_index_abspath.parent().unwrap()).with_context(|| {
+            format!(
+                "while making parent directories for {:?}",
+                directory_relpath
+            )
+        })?;
+
+        if name.is_empty() {
+            // root
+            let mut articles: Vec<&ArticleMetadata> =
+                articles.iter().take(10).map(|a| a.as_ref()).collect();
+
+            articles.append(
+                &mut entries_in_current_directory
+                    .iter()
+                    .map(|e| e.as_ref())
+                    .collect(),
+            );
 
             let index_data = ListPageData {
                 blog_name: &s.blog_name,
@@ -203,68 +224,59 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 articles,
             };
 
-            let out_abs_index_fd = OpenOptions::new()
+            let out_index_fd = OpenOptions::new()
                 .write(true)
                 .create(true)
-                .open(out_abs_file_path)?;
+                .open(out_index_abspath)
+                .context("while opening index.html")?;
             s.handlebars
-                .render_to_write("index", &index_data, out_abs_index_fd)
+                .render_to_write("index", &index_data, out_index_fd)
                 .context("while generating index.html")?;
         } else {
-            // ordering by date(descending). if both are directory, compare by directory name.
-            let mut articles: Vec<&ArticleMetadata> = entry
-                .iter()
-                .map(|e| match e {
-                    Either::Left(idx) => &articles[*idx],
-                    Either::Right(meta) => meta,
-                })
-                .collect();
-            articles.sort_by(sort_article);
-
             let list_data = ListPageData {
                 blog_name: &s.blog_name,
-                title: out_rel_dir_name,
-                path: out_rel_dir_path,
-                articles,
+                title: name,
+                path: directory_relpath,
+                articles: entries_in_current_directory
+                    .iter()
+                    .map(|e| e.as_ref())
+                    .collect(),
             };
 
-            let out_abs_file_fd = OpenOptions::new()
+            let out_index_fd = OpenOptions::new()
                 .write(true)
                 .create(true)
-                .open(out_abs_file_path)?;
+                .open(out_index_abspath)
+                .with_context(|| format!("while opening list for {:?}", list_data.title))?;
             s.handlebars
-                .render_to_write("list", &list_data, out_abs_file_fd)
+                .render_to_write("list", &list_data, out_index_fd)
                 .with_context(|| format!("while generating list for {:?}", list_data.title))?;
         }
     }
 
     debug!("generating tag-index pages");
-    fs_extra::dir::create_all(s.out_dir.join("tags"), false)?;
-    for (tag, article_indices) in tags.into_iter() {
-        let out_rel_file_path = PathBuf::from("tags").join(&tag);
-        let mut out_abs_file_path = s.out_dir.join(&out_rel_file_path);
-        out_abs_file_path.set_extension("html");
+    create_dir_all(s.out_dir.join("tags"))
+        .context("while making parent directories for tags page")?;
+    for (tag, mut tag_articles) in tags.into_iter() {
+        let tag_relpath = PathBuf::from("tags").join(&tag);
+        let mut out_abspath = s.out_dir.join(&tag_relpath);
+        out_abspath.set_extension("html");
 
-        // ordering by date(descending). if both are directory, compare by directory name.
-        let mut articles: Vec<&ArticleMetadata> = article_indices
-            .into_iter()
-            .map(|idx| &articles[idx])
-            .collect();
-        articles.sort_by(sort_article);
+        tag_articles.sort_by(sort_article);
 
         let list_data = ListPageData {
             blog_name: &s.blog_name,
             title: format!("タグ: {}", tag),
-            path: out_rel_file_path,
-            articles,
+            path: tag_relpath,
+            articles: tag_articles.iter().map(|a| a.as_ref()).collect(),
         };
 
-        let abs_abs_file_fd = OpenOptions::new()
+        let out_tag_fd = OpenOptions::new()
             .write(true)
             .create(true)
-            .open(out_abs_file_path)?;
+            .open(out_abspath)?;
         s.handlebars
-            .render_to_write("list", &list_data, abs_abs_file_fd)
+            .render_to_write("list", &list_data, out_tag_fd)
             .with_context(|| format!("while generating for tag {:?}", tag))?;
     }
 
