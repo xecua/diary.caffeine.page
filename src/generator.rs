@@ -22,25 +22,22 @@ mod data;
 mod utils;
 
 fn preprocess_article(
-    file_path: &PathBuf,
+    file_relpath: PathBuf,
     file_meta: FileMetadata,
 ) -> anyhow::Result<ArticleMetadata> {
     let s = State::instance();
-    let path = s.article_dir.join(file_path);
-
-    let mut file_path_html: PathBuf = file_path.clone();
-    file_path_html.set_extension("html");
-
     let mut metadata = ArticleMetadata {
         title: "".to_string(),
         tags: vec![],
         date: None,
-        path: file_path_html,
+        relpath: file_relpath.with_extension(""),
         body: "".to_string(),
         file_meta,
     };
 
-    let content = std::fs::read_to_string(&path)?;
+    let source_abspath = s.article_dir.join(&metadata.relpath.with_extension("md"));
+    let content = std::fs::read_to_string(&source_abspath)
+        .with_context(|| format!("while opening {:?}", source_abspath))?;
     // parsing pandoc-style metadata block
     let header_pattern = regex::RegexBuilder::new(r"^---\r?\n(.*)---\r?\n(.*)")
         .dot_matches_new_line(true)
@@ -93,16 +90,14 @@ fn generate_article(metadata: &ArticleMetadata) -> anyhow::Result<()> {
 
     let parser = Parser::new_ext(&metadata.body, options).map(gen_parser_event_iterator());
 
-    // out
-    let mut out_abspath = s.out_dir.join(&metadata.path);
-    out_abspath.set_extension("html");
+    let out_abspath = s.out_dir.join(&metadata.relpath.with_extension("html"));
 
     create_dir_all(out_abspath.parent().unwrap())?;
     let out_abs_fd = OpenOptions::new()
         .write(true)
         .create(true)
-        .open(out_abspath)
-        .with_context(|| format!("while opening file {:?}", metadata.path))?;
+        .open(&out_abspath)
+        .with_context(|| format!("while opening file {:?}", out_abspath))?;
 
     let mut body_html = String::new();
     html::push_html(&mut body_html, parser);
@@ -114,7 +109,7 @@ fn generate_article(metadata: &ArticleMetadata) -> anyhow::Result<()> {
     };
     s.handlebars
         .render_to_write("article", &data, out_abs_fd)
-        .with_context(|| format!("while generating from {:?}", metadata.path))?;
+        .with_context(|| format!("while generating {:?}", out_abspath))?;
 
     Ok(())
 }
@@ -163,13 +158,13 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                     title: entry.file_name().to_string_lossy().into_owned(),
                     tags: vec![],
                     date: None,
-                    path: s.article_dir.join(&entry_relpath),
+                    relpath: entry_relpath.clone(),
                     body: "".to_string(),
                     file_meta: meta,
                 }));
             } else if meta.is_file() {
                 let article_meta =
-                    Rc::new(preprocess_article(&entry_relpath, meta).with_context(|| {
+                    Rc::new(preprocess_article(entry_relpath, meta).with_context(|| {
                         format!(
                             "while preprocessing {:?}",
                             &current_directory_relpath.join(entry.file_name())
@@ -220,7 +215,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             let index_data = ListPageData {
                 blog_name: &s.blog_name,
                 title: "index".to_string(),
-                path: PathBuf::from("/"),
+                relpath: PathBuf::from("/"),
                 articles,
             };
 
@@ -236,7 +231,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             let list_data = ListPageData {
                 blog_name: &s.blog_name,
                 title: name,
-                path: directory_relpath,
+                relpath: directory_relpath,
                 articles: entries_in_current_directory
                     .iter()
                     .map(|e| e.as_ref())
@@ -259,15 +254,14 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         .context("while making parent directories for tags page")?;
     for (tag, mut tag_articles) in tags.into_iter() {
         let tag_relpath = PathBuf::from("tags").join(&tag);
-        let mut out_abspath = s.out_dir.join(&tag_relpath);
-        out_abspath.set_extension("html");
+        let out_abspath = s.out_dir.join(&tag_relpath.with_extension("html"));
 
         tag_articles.sort_by(sort_article);
 
         let list_data = ListPageData {
             blog_name: &s.blog_name,
             title: format!("タグ: {}", tag),
-            path: tag_relpath,
+            relpath: tag_relpath,
             articles: tag_articles.iter().map(|a| a.as_ref()).collect(),
         };
 

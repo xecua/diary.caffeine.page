@@ -14,7 +14,7 @@
     <body>
         <header>
             {{#if blog_name}}<h1>{{ blog_name }}</h1>{{/if}}
-            <nav id="breadcrumbs">{{{ breadcrumbs path }}}</nav>
+            <nav id="breadcrumbs">{{{ breadcrumbs (with_extension relpath "html") }}}</nav>
         </header>
         <div id="container">
             <main>

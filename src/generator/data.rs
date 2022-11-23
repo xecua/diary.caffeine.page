@@ -6,7 +6,7 @@ pub(super) struct ArticleMetadata {
     pub title: String,
     pub tags: Vec<String>,
     pub date: Option<chrono::NaiveDate>,
-    pub path: std::path::PathBuf,
+    pub relpath: PathBuf,
     pub body: String,
 
     #[allow(dead_code)]
@@ -25,6 +25,6 @@ pub(super) struct ArticlePageData<'a> {
 pub(super) struct ListPageData<'a> {
     pub blog_name: &'static str,
     pub title: String,
-    pub path: PathBuf,
+    pub relpath: PathBuf,
     pub articles: Vec<&'a ArticleMetadata>,
 }
