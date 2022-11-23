@@ -31,14 +31,9 @@ fn preprocess_article(
     file_meta: FileMetadata,
 ) -> anyhow::Result<ArticleMetadata> {
     let s = State::instance();
-    let mut metadata = ArticleMetadata {
-        title: "".to_string(),
-        tags: vec![],
-        date: None,
-        relpath: file_relpath.with_extension(""),
-        body: "".to_string(),
-        file_meta,
-    };
+    let mut metadata = ArticleMetadata::new(file_meta);
+    metadata.relpath = file_relpath.with_extension("");
+    metadata.is_page = true;
 
     let source_abspath = s.article_dir.join(&metadata.relpath.with_extension("md"));
     let content = std::fs::read_to_string(&source_abspath)
@@ -158,14 +153,11 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             if meta.is_dir() {
                 q.push_back(entry_relpath.clone());
 
-                (*entries_in_current_directory).push(Rc::new(ArticleMetadata {
-                    title: entry.file_name().to_string_lossy().into_owned(),
-                    tags: vec![],
-                    date: None,
-                    relpath: entry_relpath.clone(),
-                    body: "".to_string(),
-                    file_meta: meta,
-                }));
+                let mut meta = ArticleMetadata::new(meta);
+                meta.title = entry.file_name().to_string_lossy().into_owned();
+                meta.relpath = entry_relpath;
+
+                (*entries_in_current_directory).push(Rc::new(meta));
             } else if meta.is_file() {
                 let article_meta =
                     Rc::new(preprocess_article(entry_relpath, meta).with_context(|| {
@@ -211,7 +203,11 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             .id(&s.blog_url) // RFC3987 IRI: 各ページのURLでいいんじゃないか
             .updated(Local::now().with_timezone(&offset))
             .entries(Vec::from_iter(articles.iter().map(|art| {
-                let uri = format!("{}/{}", s.blog_url, art.path.to_string_lossy());
+                let uri = format!(
+                    "{}/{}",
+                    s.blog_url,
+                    art.relpath.with_extension("html").to_string_lossy()
+                );
 
                 EntryBuilder::default()
                     .title(&*art.title)
@@ -256,6 +252,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
 
         if name.is_empty() {
             // root
+            // 最新の10件
             let mut articles: Vec<&ArticleMetadata> =
                 articles.iter().take(10).map(|a| a.as_ref()).collect();
 
@@ -271,6 +268,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 blog_name: &s.blog_name,
                 title: "index".to_string(),
                 relpath: PathBuf::from("/"),
+                is_page: false,
                 articles,
             };
 
@@ -287,6 +285,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 blog_name: &s.blog_name,
                 title: name,
                 relpath: directory_relpath,
+                is_page: false,
                 articles: entries_in_current_directory
                     .iter()
                     .map(|e| e.as_ref())
@@ -317,6 +316,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             blog_name: &s.blog_name,
             title: format!("タグ: {}", tag),
             relpath: tag_relpath,
+            is_page: true,
             articles: tag_articles.iter().map(|a| a.as_ref()).collect(),
         };
 
