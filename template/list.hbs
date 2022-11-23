@@ -3,7 +3,9 @@
         <h2> {{ title }} </h2>
         <ui>
         {{#each articles}}
-            <li><a href="/{{ with_extension relpath "html" }}">{{title}}{{#if date}} ({{date}}){{/if}}</a></li>
+            <li><a href="/{{#if is_page }}{{ with_extension relpath "html" }}{{else}}{{ relpath }}{{/if}}">
+                {{title}}{{#if date}}({{date}}){{/if}}
+            </a></li>
         {{/each}}
         </ul>
     {{/inline}}
