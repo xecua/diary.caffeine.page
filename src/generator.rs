@@ -204,7 +204,8 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             // generate feed using `articles`(行儀が悪い)
             {
                 debug!("generating feed");
-                let offset: chrono::FixedOffset = chrono::FixedOffset::east(60 * 60 * 9);
+                let offset: chrono::FixedOffset =
+                    chrono::FixedOffset::east_opt(60 * 60 * 9).unwrap();
                 let channel = FeedBuilder::default()
                     .title(format!("articles - {}", s.blog_name))
                     .lang(Some("ja".to_string()))
