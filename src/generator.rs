@@ -35,11 +35,11 @@ fn preprocess_article(
     metadata.relpath = file_relpath.with_extension("");
     metadata.is_page = true;
 
-    let source_abspath = s.article_dir.join(&metadata.relpath.with_extension("md"));
+    let source_abspath = s.article_dir.join(metadata.relpath.with_extension("md"));
     let content = std::fs::read_to_string(&source_abspath)
         .with_context(|| format!("while opening {:?}", source_abspath))?;
     // parsing pandoc-style metadata block
-    let header_pattern = regex::RegexBuilder::new(r"^---\r?\n(.*)---\r?\n(.*)")
+    let header_pattern = regex::RegexBuilder::new(r"^---\r?\n(.*?)---\r?\n(.*)")
         .dot_matches_new_line(true)
         .build()
         .unwrap();
@@ -187,11 +187,17 @@ pub(crate) fn generate() -> anyhow::Result<()> {
 
     debug!("generating articles");
     for (i, article) in articles.iter().enumerate() {
-        generate_article(
-            article,
-            articles.get(i + 1).map(|a| a.as_ref()),
-            articles.get(i - 1).map(|a| a.as_ref()),
-        )?;
+        let prev = if i == articles.len() {
+            None
+        } else {
+            articles.get(i + 1).map(|a| a.as_ref())
+        };
+        let next = if i == 0 {
+            None
+        } else {
+            articles.get(i - 1).map(|a| a.as_ref())
+        };
+        generate_article(article, prev, next)?;
     }
 
     debug!("generating feed");
