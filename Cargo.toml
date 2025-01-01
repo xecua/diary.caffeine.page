@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 anyhow = { version = "1.0.62", features = ["backtrace"] }
-atom_syndication = "0.11.0"
+atom_syndication = "0.12.0"
 chrono = { version = "0.4.22", features = ["serde"] }
 clap = { version = "3.2.17", features = ["cargo"] }
 either = { version = "1.8.0", features = ["serde"] }
