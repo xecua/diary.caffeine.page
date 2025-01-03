@@ -8,7 +8,7 @@ use std::{
     time::SystemTime,
 };
 
-use anyhow::{bail, Context};
+use anyhow::{bail, Context as _};
 
 use atom_syndication::{EntryBuilder, FeedBuilder, LinkBuilder};
 use chrono::{Local, NaiveDate};
@@ -21,7 +21,7 @@ use self::{
     data::{ArticleMetadata, ArticlePageData, ListPageData},
     utils::{gen_parser_event_iterator, sort_article},
 };
-use crate::state::State;
+use crate::context::Context;
 
 mod data;
 mod utils;
@@ -30,12 +30,12 @@ fn preprocess_article(
     file_relpath: PathBuf,
     file_meta: FileMetadata,
 ) -> anyhow::Result<ArticleMetadata> {
-    let s = State::instance();
+    let ctx = Context::instance();
     let mut metadata = ArticleMetadata::new(file_meta);
     metadata.relpath = file_relpath.with_extension("");
     metadata.is_page = true;
 
-    let source_abspath = s.article_dir.join(metadata.relpath.with_extension("md"));
+    let source_abspath = ctx.article_dir.join(metadata.relpath.with_extension("md"));
     let content = std::fs::read_to_string(&source_abspath)
         .with_context(|| format!("while opening {:?}", source_abspath))?;
     // parsing pandoc-style metadata block
@@ -87,14 +87,14 @@ fn generate_article(
     prev_meta: Option<&ArticleMetadata>,
     next_meta: Option<&ArticleMetadata>,
 ) -> anyhow::Result<()> {
-    let s = State::instance();
+    let ctx = Context::instance();
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
     options.insert(Options::ENABLE_TABLES);
 
     let parser = Parser::new_ext(&metadata.body, options).map(gen_parser_event_iterator());
 
-    let out_abspath = s.out_dir.join(metadata.relpath.with_extension("html"));
+    let out_abspath = ctx.out_dir.join(metadata.relpath.with_extension("html"));
 
     create_dir_all(out_abspath.parent().unwrap())?;
     let out_abs_fd = OpenOptions::new()
@@ -108,13 +108,13 @@ fn generate_article(
     html::push_html(&mut body_html, parser);
 
     let data = ArticlePageData {
-        blog_name: &s.blog_name,
+        blog_name: &ctx.blog_name,
         body: body_html,
         meta: metadata,
         prev_meta,
         next_meta,
     };
-    s.handlebars
+    ctx.handlebars
         .render_to_write("article", &data, out_abs_fd)
         .with_context(|| format!("while generating {:?}", out_abspath))?;
 
@@ -122,16 +122,16 @@ fn generate_article(
 }
 
 pub(crate) fn generate() -> anyhow::Result<()> {
-    let s = State::instance();
+    let ctx = Context::instance();
 
-    fs_extra::dir::remove(&s.out_dir)?;
+    fs_extra::dir::remove(&ctx.out_dir)?;
 
     // copy `public_dir`
     let cp_opts = CopyOptions::new()
         .copy_inside(true)
         .content_only(true)
         .overwrite(true);
-    fs_extra::dir::copy(&s.public_dir, s.out_dir.join(&s.public_dir), &cp_opts)?;
+    fs_extra::dir::copy(&ctx.public_dir, ctx.out_dir.join(&ctx.public_dir), &cp_opts)?;
 
     // master data
     let mut articles = vec![];
@@ -146,7 +146,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     while let Some(current_directory_relpath) = q.pop_front() {
         // relpathはarticle_dirからの相対パス、abspathはarticle_dirを含めたパス
         // abspathは厳密にはabsではないかもしれない
-        let current_directory_abspath = s.article_dir.join(&current_directory_relpath);
+        let current_directory_abspath = ctx.article_dir.join(&current_directory_relpath);
 
         let entries_in_current_directory = directory_entries
             .entry(current_directory_relpath.clone())
@@ -205,24 +205,24 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     {
         let offset: chrono::FixedOffset = chrono::FixedOffset::east_opt(60 * 60 * 9).unwrap();
         let channel = FeedBuilder::default()
-            .title(format!("articles - {}", s.blog_name))
+            .title(format!("articles - {}", ctx.blog_name))
             .lang(Some("ja".to_string()))
             .links(vec![
                 LinkBuilder::default()
-                    .href(&s.blog_url)
+                    .href(&ctx.blog_url)
                     .mime_type(Some("text/html".to_string()))
                     .build(),
                 LinkBuilder::default()
-                    .href(format!("{}/feed.atom", s.blog_url))
+                    .href(format!("{}/feed.atom", ctx.blog_url))
                     .mime_type(Some("application/atom+xml".to_string()))
                     .build(),
             ])
-            .id(&s.blog_url) // RFC3987 IRI: 各ページのURLでいいんじゃないか
+            .id(&ctx.blog_url) // RFC3987 IRI: 各ページのURLでいいんじゃないか
             .updated(Local::now().with_timezone(&offset))
             .entries(Vec::from_iter(articles.iter().map(|art| {
                 let uri = format!(
                     "{}/{}",
-                    s.blog_url,
+                    ctx.blog_url,
                     art.relpath.with_extension("html").to_string_lossy()
                 );
 
@@ -249,7 +249,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             .create(true)
             .truncate(true)
             .write(true)
-            .open(s.out_dir.join("feed.atom"))
+            .open(ctx.out_dir.join("feed.atom"))
             .context("while opening feed file")?;
         let writer = BufWriter::new(feed_fd);
         channel.write_to(writer).context("while writing feed")?;
@@ -258,7 +258,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     debug!("generating directory-index pages");
     for (directory_relpath, mut entries_in_current_directory) in directory_entries.into_iter() {
         let name = directory_relpath.to_string_lossy().to_string();
-        let out_index_abspath = s.out_dir.join(&directory_relpath).join("index.html");
+        let out_index_abspath = ctx.out_dir.join(&directory_relpath).join("index.html");
         entries_in_current_directory.sort_by(sort_article);
 
         create_dir_all(out_index_abspath.parent().unwrap()).with_context(|| {
@@ -278,7 +278,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             articles.append(&mut entries_in_current_directory);
 
             let index_data = ListPageData {
-                blog_name: &s.blog_name,
+                blog_name: &ctx.blog_name,
                 title: "index".to_string(),
                 relpath: PathBuf::from("/"),
                 is_page: false,
@@ -291,12 +291,12 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 .truncate(true)
                 .open(out_index_abspath)
                 .context("while opening index.html")?;
-            s.handlebars
+            ctx.handlebars
                 .render_to_write("index", &index_data, out_index_fd)
                 .context("while generating index.html")?;
         } else {
             let list_data = ListPageData {
-                blog_name: &s.blog_name,
+                blog_name: &ctx.blog_name,
                 title: name,
                 relpath: directory_relpath,
                 is_page: false,
@@ -309,23 +309,23 @@ pub(crate) fn generate() -> anyhow::Result<()> {
                 .truncate(true)
                 .open(out_index_abspath)
                 .with_context(|| format!("while opening list for {:?}", list_data.title))?;
-            s.handlebars
+            ctx.handlebars
                 .render_to_write("list", &list_data, out_index_fd)
                 .with_context(|| format!("while generating list for {:?}", list_data.title))?;
         }
     }
 
     debug!("generating tag-index pages");
-    create_dir_all(s.out_dir.join("tags"))
+    create_dir_all(ctx.out_dir.join("tags"))
         .context("while making parent directories for tags page")?;
     for (tag, mut tag_articles) in tags.into_iter() {
         let tag_relpath = PathBuf::from("tags").join(&tag);
-        let out_abspath = s.out_dir.join(tag_relpath.with_extension("html"));
+        let out_abspath = ctx.out_dir.join(tag_relpath.with_extension("html"));
 
         tag_articles.sort_by(sort_article);
 
         let list_data = ListPageData {
-            blog_name: &s.blog_name,
+            blog_name: &ctx.blog_name,
             title: format!("タグ: {}", tag),
             relpath: tag_relpath,
             is_page: true,
@@ -337,7 +337,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             .create(true)
             .truncate(true)
             .open(out_abspath)?;
-        s.handlebars
+        ctx.handlebars
             .render_to_write("list", &list_data, out_tag_fd)
             .with_context(|| format!("while generating for tag {:?}", tag))?;
     }

@@ -1,14 +1,13 @@
+pub(crate) use crate::{context::Context, generator::generate};
 use anyhow::bail;
 use cache::{load_cache, save_cache};
 use clap::{command, Arg};
-use generator::generate;
-use state::State;
 use std::{path::PathBuf, sync::Mutex};
 
 mod cache;
+mod context;
 mod generator;
 mod renderer;
-mod state;
 
 fn main() -> anyhow::Result<()> {
     env_logger::init();
@@ -55,24 +54,22 @@ fn main() -> anyhow::Result<()> {
     let handlebars = renderer::generate_renderer(template_dir)?;
 
     let cache_file_path = PathBuf::from("cache.json.zst");
-    state::STATE
-        .set(State {
-            article_dir: article_dir.to_owned(),
-            out_dir: out_dir.to_owned(),
-            public_dir: public_dir.to_owned(),
-            blog_name: std::env::var("BLOG_NAME").unwrap_or_default(),
-            blog_url: std::env::var("BLOG_URL").unwrap_or_default(),
-            handlebars,
-            opengraph_cache: Mutex::new(load_cache(&cache_file_path)?),
-        })
-        .unwrap();
+    Context::init(
+        article_dir.to_owned(),
+        out_dir.to_owned(),
+        public_dir.to_owned(),
+        std::env::var("BLOG_NAME").unwrap_or_default(),
+        std::env::var("BLOG_URL").unwrap_or_default(),
+        handlebars,
+        Mutex::new(load_cache(&cache_file_path)?),
+    );
 
     generate()?;
 
     // save cache
     save_cache(
         &cache_file_path,
-        &state::State::instance().opengraph_cache.lock().unwrap(),
+        &context::Context::instance().opengraph_cache.lock().unwrap(),
     )?;
 
     Ok(())

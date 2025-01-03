@@ -6,7 +6,7 @@ use pulldown_cmark::{Event, LinkType, Tag, TagEnd};
 use serde_json::{json, Value};
 use webpage::{Opengraph, OpengraphObject, Webpage, WebpageOptions};
 
-use crate::state::State;
+use crate::context::Context;
 
 use super::data::ArticleMetadata;
 
@@ -39,7 +39,7 @@ pub(super) fn sort_article<T: Borrow<ArticleMetadata>>(a: &T, b: &T) -> Ordering
 }
 
 pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
-    let s = State::instance();
+    let ctx = Context::instance();
     let mut ogp_replacing = false;
 
     Box::new(move |event: Event| -> Event {
@@ -55,7 +55,7 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
                 // 内部リンクの場合自動的に(index).htmlを付与する、とかあった方が便利そうだな
                 {
                     debug!("Getting cache of {url}...");
-                    let cache = s.opengraph_cache.lock().unwrap();
+                    let cache = ctx.opengraph_cache.lock().unwrap();
                     if let Some(c) = cache.get(&url.to_string()) {
                         debug!("done.");
                         if *c != Value::Null {
@@ -124,7 +124,7 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
                     {
                         // caching.
                         {
-                            let mut cache = s.opengraph_cache.lock().unwrap();
+                            let mut cache = ctx.opengraph_cache.lock().unwrap();
                             cache.insert(
                                 url.to_string(),
                                 if og.properties.contains_key("description") {
@@ -152,7 +152,7 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
                 // no need to caching (because there is no ogp info, nor the webpage did not exist.)
                 {
                     debug!("there was no ogp info.");
-                    let mut cache = s.opengraph_cache.lock().unwrap();
+                    let mut cache = ctx.opengraph_cache.lock().unwrap();
                     cache.insert(url.to_string(), Value::Null);
                 }
                 event

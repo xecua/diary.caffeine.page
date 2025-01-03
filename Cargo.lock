@@ -161,7 +161,6 @@ dependencies = [
  "handlebars",
  "log",
  "maud",
- "once_cell",
  "pulldown-cmark",
  "regex",
  "serde",
