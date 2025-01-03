@@ -94,12 +94,13 @@ fn generate_article(
 
     let parser = Parser::new_ext(&metadata.body, options).map(gen_parser_event_iterator());
 
-    let out_abspath = s.out_dir.join(&metadata.relpath.with_extension("html"));
+    let out_abspath = s.out_dir.join(metadata.relpath.with_extension("html"));
 
     create_dir_all(out_abspath.parent().unwrap())?;
     let out_abs_fd = OpenOptions::new()
-        .write(true)
         .create(true)
+        .write(true)
+        .truncate(true)
         .open(&out_abspath)
         .with_context(|| format!("while opening file {:?}", out_abspath))?;
 
@@ -154,7 +155,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         for entry in std::fs::read_dir(current_directory_abspath)? {
             let entry = entry?;
             let meta = entry.metadata()?;
-            let entry_relpath = current_directory_relpath.join(&entry.file_name());
+            let entry_relpath = current_directory_relpath.join(entry.file_name());
 
             if meta.is_dir() {
                 q.push_back(entry_relpath.clone());
@@ -246,6 +247,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
 
         let feed_fd = OpenOptions::new()
             .create(true)
+            .truncate(true)
             .write(true)
             .open(s.out_dir.join("feed.atom"))
             .context("while opening feed file")?;
@@ -286,6 +288,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             let out_index_fd = OpenOptions::new()
                 .write(true)
                 .create(true)
+                .truncate(true)
                 .open(out_index_abspath)
                 .context("while opening index.html")?;
             s.handlebars
@@ -303,6 +306,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
             let out_index_fd = OpenOptions::new()
                 .write(true)
                 .create(true)
+                .truncate(true)
                 .open(out_index_abspath)
                 .with_context(|| format!("while opening list for {:?}", list_data.title))?;
             s.handlebars
@@ -316,7 +320,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         .context("while making parent directories for tags page")?;
     for (tag, mut tag_articles) in tags.into_iter() {
         let tag_relpath = PathBuf::from("tags").join(&tag);
-        let out_abspath = s.out_dir.join(&tag_relpath.with_extension("html"));
+        let out_abspath = s.out_dir.join(tag_relpath.with_extension("html"));
 
         tag_articles.sort_by(sort_article);
 
@@ -331,6 +335,7 @@ pub(crate) fn generate() -> anyhow::Result<()> {
         let out_tag_fd = OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(true)
             .open(out_abspath)?;
         s.handlebars
             .render_to_write("list", &list_data, out_tag_fd)

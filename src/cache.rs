@@ -23,6 +23,7 @@ pub(super) fn load_cache(cache_file_path: &Path) -> anyhow::Result<Map<String, V
 pub(super) fn save_cache(cache_file_path: &Path, cache: &Map<String, Value>) -> anyhow::Result<()> {
     let cache_file_fd = OpenOptions::new()
         .create(true)
+        .truncate(true)
         .write(true)
         .open(cache_file_path)?;
     let writer = BufWriter::new(cache_file_fd);
