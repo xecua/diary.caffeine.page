@@ -32,7 +32,7 @@ handlebars_helper!(slice_since: |lst: array, lower: usize| lst[lower..].to_owned
 handlebars_helper!(slice: |lst: array, lower: usize, upper: usize| lst[lower..upper].to_owned());
 
 pub(super) fn generate_renderer(template_dir: &Path) -> anyhow::Result<Handlebars<'static>> {
-    let mut handlebars = handlebars::Handlebars::new();
+    let mut handlebars = Handlebars::new();
     handlebars.register_helper("breadcrumbs", Box::new(breadcrumbs));
     handlebars.register_helper("with_extension", Box::new(with_extension));
     handlebars.register_helper("slice", Box::new(slice));

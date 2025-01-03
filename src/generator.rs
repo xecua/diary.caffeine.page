@@ -126,10 +126,10 @@ pub(crate) fn generate() -> anyhow::Result<()> {
     fs_extra::dir::remove(&s.out_dir)?;
 
     // copy `public_dir`
-    let mut cp_opts = CopyOptions::new();
-    cp_opts.copy_inside = true;
-    cp_opts.content_only = true;
-    cp_opts.overwrite = true;
+    let cp_opts = CopyOptions::new()
+        .copy_inside(true)
+        .content_only(true)
+        .overwrite(true);
     fs_extra::dir::copy(&s.public_dir, s.out_dir.join(&s.public_dir), &cp_opts)?;
 
     // master data

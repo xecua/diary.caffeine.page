@@ -14,25 +14,21 @@ fn main() -> anyhow::Result<()> {
     env_logger::init();
 
     let matches = command!()
-        .args(&[
+        .args([
             Arg::new("article_dir")
                 .help("Directory path of articles")
-                .takes_value(true)
                 .value_parser(clap::value_parser!(PathBuf))
                 .default_value("posts"),
             Arg::new("out_dir")
                 .help("Directory path of output. Existing contents will be removed.")
-                .takes_value(true)
                 .value_parser(clap::value_parser!(PathBuf))
                 .default_value("out"),
             Arg::new("public_dir")
                 .help("Directory path of public. Contents will be copied as it is.")
-                .takes_value(true)
                 .value_parser(clap::value_parser!(PathBuf))
                 .default_value("public"),
             Arg::new("template_dir")
                 .help("Directory of template")
-                .takes_value(true)
                 .value_parser(clap::value_parser!(PathBuf))
                 .default_value("template"),
         ])

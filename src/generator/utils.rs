@@ -2,7 +2,7 @@ use std::{borrow::Borrow, cmp::Ordering};
 
 use log::{debug, warn};
 use maud::html;
-use pulldown_cmark::{Event, LinkType, Tag};
+use pulldown_cmark::{Event, LinkType, Tag, TagEnd};
 use serde_json::{json, Value};
 use webpage::{Opengraph, OpengraphObject, Webpage, WebpageOptions};
 
@@ -46,7 +46,11 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
         // TODO: 数式とか?
         // debug!("{:?}", event);
         match event {
-            Event::Start(Tag::Link(LinkType::Autolink, ref url, _)) => {
+            Event::Start(Tag::Link {
+                link_type: LinkType::Autolink,
+                dest_url: ref url,
+                ..
+            }) => {
                 // fetch OGP info
                 // 内部リンクの場合自動的に(index).htmlを付与する、とかあった方が便利そうだな
                 {
@@ -103,11 +107,9 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
 
                 debug!("failed. fetching...");
                 // there is no cache: try to fetch
-                let options = WebpageOptions {
-                    // Hint from https://qiita.com/JunkiHiroi/items/f03d4297e11ce5db172e: this may be useful even for other than twitter
-                    useragent: "bot".to_string(),
-                    ..Default::default()
-                };
+                let mut options = WebpageOptions::default();
+                // Hint from https://qiita.com/JunkiHiroi/items/f03d4297e11ce5db172e: this may be useful even for other than twitter
+                options.useragent = "bot".to_string();
 
                 if let Ok(webpage) = Webpage::from_url(url, options) {
                     std::thread::sleep(std::time::Duration::from_secs(10));
@@ -155,7 +157,7 @@ pub(super) fn gen_parser_event_iterator() -> Box<dyn FnMut(Event) -> Event> {
                 }
                 event
             }
-            Event::End(Tag::Link(pulldown_cmark::LinkType::Autolink, _, _)) => {
+            Event::End(TagEnd::Link) => {
                 if ogp_replacing {
                     ogp_replacing = false;
                     Event::Text("".into())
