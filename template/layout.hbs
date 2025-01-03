@@ -13,7 +13,7 @@
     </head>
     <body>
         <header>
-            {{#if blog_name}}<h1>{{ blog_name }}</h1>{{/if}}
+            {{#if blog_name}}<h1 id="title"><a href="/" id="title-anchor">{{ blog_name }}</a></h1>{{/if}}
             <nav id="breadcrumbs">
                 {{#if is_page}}{{{ breadcrumbs (with_extension relpath "html") }}}{{else}}{{{ breadcrumbs relpath }}}{{/if}}
             </nav>
