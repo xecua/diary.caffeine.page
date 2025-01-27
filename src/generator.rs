@@ -107,12 +107,14 @@ fn generate_article(
     let mut body_html = String::new();
     html::push_html(&mut body_html, parser);
 
+    let date_of_starting_use_giscus = NaiveDate::from_ymd_opt(2025, 1, 27).unwrap();
     let data = ArticlePageData {
         blog_name: &ctx.blog_name,
         body: body_html,
         meta: metadata,
         prev_meta,
         next_meta,
+        use_giscus: date_of_starting_use_giscus <= metadata.date.unwrap_or(NaiveDate::MAX),
     };
     ctx.handlebars
         .render_to_write("article", &data, out_abs_fd)

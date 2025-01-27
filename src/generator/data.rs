@@ -35,6 +35,7 @@ pub(super) struct ArticlePageData<'a> {
     pub meta: &'a ArticleMetadata,
     pub prev_meta: Option<&'a ArticleMetadata>,
     pub next_meta: Option<&'a ArticleMetadata>,
+    pub use_giscus: bool,
 }
 
 #[derive(Serialize, Debug)]
