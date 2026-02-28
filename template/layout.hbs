@@ -5,7 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>{{title}}{{#if blog_name}}{{#if title}} | {{/if}}{{/if}}{{blog_name}}</title>
-        <script async src="/public/prism.js"></script>
         <link rel="stylesheet" href="/public/prism.css">
         {{#> additional_header }}{{/ additional_header }}
     </head>
@@ -25,5 +24,6 @@
             </nav> --}}
         </div>
         {{!-- <footer></footer> --}}
+        <script defer src="/public/prism.js"></script>
     </body>
 </html>
